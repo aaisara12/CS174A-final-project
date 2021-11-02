@@ -15,6 +15,7 @@ class Base_Scene extends Scene {
 
         this.shapes = {
             'cube': new defs.Cube(),
+            'square': new defs.Square()
         };
 
         // *** Materials
@@ -63,9 +64,9 @@ export class FinalProject extends Base_Scene {
         // this.shapes.cube.draw(context, program_state, model_transform, this.materials.plastic.override({color:blue}));
 
         // Start off the first box at a scale of 1.5x
-        model_transform = model_transform.times(Mat4.scale(1, 1.5, 1));
+        model_transform = model_transform.times(Mat4.scale(1, 1, 1));
 
-        // Draw 8 cubes, each cube 2 units above the previous
-        this.shapes.cube.draw(context, program_state, model_transform, this.materials.plastic.override({color:blue}));
+//         this.shapes.cube.draw(context, program_state, model_transform, this.materials.plastic.override({color:blue}));
+        this.shapes.square.draw(context, program_state, model_transform, this.materials.plastic.override({color:blue}));
     }
 }
