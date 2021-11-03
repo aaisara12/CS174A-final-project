@@ -15,7 +15,9 @@ class Base_Scene extends Scene {
 
         this.shapes = {
             'cube': new defs.Cube(),
-            'square': new defs.Square()
+            'square': new defs.Square(),
+            'shaft': new defs.Capped_Cylinder(5, 20, [[0, 5], [0, 20]]),
+            'tip': new defs.Closed_Cone(5, 20, [[0, 5], [0, 20]])
         };
 
         // *** Materials
@@ -59,14 +61,26 @@ export class FinalProject extends Base_Scene {
         super.display(context, program_state);
         const blue = hex_color("#1a9ffa");
         let model_transform = Mat4.identity();
-
+        
+        const t = program_state.animation_time / 1000, dt = program_state.animation_delta_time / 1000;
         // Example for drawing a cube, you can remove this line if needed
         // this.shapes.cube.draw(context, program_state, model_transform, this.materials.plastic.override({color:blue}));
 
+        //move 
+        model_transform = model_transform.times(Mat4.translation(t, 0, 0))
+        
         // Start off the first box at a scale of 1.5x
-        model_transform = model_transform.times(Mat4.scale(1, 1, 1));
+        model_transform = model_transform.times(Mat4.scale(1, 1, 1))
+            .times(Mat4.rotation(Math.PI/2, 0, 1, 0))
+            .times(Mat4.scale(0.3, 0.3, 20.0));
 
 //         this.shapes.cube.draw(context, program_state, model_transform, this.materials.plastic.override({color:blue}));
-        this.shapes.square.draw(context, program_state, model_transform, this.materials.plastic.override({color:blue}));
+        this.shapes.shaft.draw(context, program_state, model_transform, this.materials.plastic.override({color:blue}));
+
+        model_transform = model_transform.times(Mat4.scale(1.0/0.3, 1.0/0.3, 1.0/20))
+            .times(Mat4.translation(0, 0, 10))
+            .times(Mat4.scale(1, 1, 1));
+
+        this.shapes.tip.draw(context, program_state, model_transform, this.materials.plastic.override({color:blue}));
     }
 }
