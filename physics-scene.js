@@ -55,19 +55,20 @@ export class PhysicsScene extends Base_Scene {
         this.gameobjects = [];                               // List of GameObjects in scene
         
         // Test object
-        this.gameobjects.push(new GameObject(this.shapes.square, Mat4.identity(), this.materials.plastic));
+        this.gameobjects.push(new TestObject(this.shapes.square, Mat4.identity(), this.materials.plastic));
     }
 
     make_control_panel() {
         // Draw the scene's buttons, setup their actions and keyboard shortcuts, and monitor live measurements.
         this.key_triggered_button("Change Colors", ["c"], this.set_colors);
+        this.key_triggered_button("Spawn square", ["q"], () => this.spawn_prefab(this.shapes.square, Mat4.identity(), this.materials.plastic));
 
     }
 
     // Make a special function that spawns in a GameObject into the scene (instantiates a GameObject using a "prefab")
     spawn_prefab(prefab, start_transform, material)
     {
-        this.gameobjects.push(new GameObject(prefab, start_transform, material));
+        this.gameobjects.push(new TestObject(prefab, start_transform, material));
     }
 
     
@@ -75,7 +76,7 @@ export class PhysicsScene extends Base_Scene {
         super.display(context, program_state);
         
         const t = program_state.animation_time / 1000, dt = program_state.animation_delta_time / 1000;
-        
+
         // Update each GameObject in the scene then draw it
         for(let i = 0; i < this.gameobjects.length; i++)
         {
@@ -94,7 +95,7 @@ class GameObject
     constructor(model, start_transform, material)
     {
         this.model = model;
-        this.model_transform = start_transform;
+        this.transform = new Transform(start_transform);
         this.material = material;
     }
     
@@ -106,6 +107,34 @@ class GameObject
     // DO NOT OVERRIDE
     draw(context, program_state)
     {
-        this.model.draw(context, program_state, this.model_transform, this.material);
+        this.model.draw(context, program_state, this.transform.model_transform, this.material);
+    }
+}
+
+// Unity-inspired transform management class
+class Transform
+{
+    constructor(start_transform)
+    {
+        this.model_transform = start_transform;
+    }
+    
+    // Translate the transform relative to the world coordinate system (not relative to its parent)
+    translate(dx, dy, dz)
+    {
+        this.model_transform = Mat4.translation(dx, dy, dz).times(this.model_transform);
+    }
+}
+
+class TestObject extends GameObject
+{
+    constructor(model, start_transform, material)
+    {
+        super(model, start_transform, material);
+    }
+
+    update(time, deltaTime)
+    {
+        this.transform.translate(-deltaTime, deltaTime, 0);
     }
 }
