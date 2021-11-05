@@ -48,20 +48,64 @@ class Base_Scene extends Scene {
 
 export class PhysicsScene extends Base_Scene {
 
+    constructor()
+    {
+        super();
+        
+        this.gameobjects = [];                               // List of GameObjects in scene
+        
+        // Test object
+        this.gameobjects.push(new GameObject(this.shapes.square, Mat4.identity(), this.materials.plastic));
+    }
+
     make_control_panel() {
         // Draw the scene's buttons, setup their actions and keyboard shortcuts, and monitor live measurements.
         this.key_triggered_button("Change Colors", ["c"], this.set_colors);
 
     }
 
+    // Make a special function that spawns in a GameObject into the scene (instantiates a GameObject using a "prefab")
+    spawn_prefab(prefab, start_transform, material)
+    {
+        this.gameobjects.push(new GameObject(prefab, start_transform, material));
+    }
+
     
     display(context, program_state) {
         super.display(context, program_state);
-        const green = hex_color("#00eb3f");
-        let model_transform = Mat4.identity();
+        
+        const t = program_state.animation_time / 1000, dt = program_state.animation_delta_time / 1000;
+        
+        // Update each GameObject in the scene then draw it
+        for(let i = 0; i < this.gameobjects.length; i++)
+        {
+            this.gameobjects[i].update(t, dt);
+            this.gameobjects[i].draw(context, program_state);
+        }
+    }
 
-        model_transform = model_transform.times(Mat4.scale(1, 1, 1));
 
-        this.shapes.square.draw(context, program_state, model_transform, this.materials.plastic.override({color:green}));
+}
+
+
+// Unity-inspired actor class 
+class GameObject
+{
+    constructor(model, start_transform, material)
+    {
+        this.model = model;
+        this.model_transform = start_transform;
+        this.material = material;
+    }
+    
+    update(time, deltaTime)
+    {
+        // Put custom update stuff here
+    }
+    
+    // DO NOT OVERRIDE
+    draw(context, program_state)
+    {
+        this.model.draw(context, program_state, this.model_transform, this.material);
     }
 }
