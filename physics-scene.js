@@ -1,4 +1,10 @@
 import {defs, tiny} from './examples/common.js';
+import {GameObject} from './components/gameobject.js';
+
+// Component import statements
+import {TestMovement} from './components/test_movement.js';
+
+
 
 const {
     Vector, Vector3, vec, vec3, vec4, color, hex_color, Matrix, Mat4, Light, Shape, Material, Scene,
@@ -55,20 +61,22 @@ export class PhysicsScene extends Base_Scene {
         this.gameobjects = [];                               // List of GameObjects in scene
         
         // Test object
-        this.gameobjects.push(new TestObject(this.shapes.square, Mat4.identity(), this.materials.plastic));
+        this.gameobjects.push(new GameObject(this.shapes.square, Mat4.identity(), [new TestMovement()], this.materials.plastic));
     }
 
     make_control_panel() {
         // Draw the scene's buttons, setup their actions and keyboard shortcuts, and monitor live measurements.
         this.key_triggered_button("Change Colors", ["c"], this.set_colors);
-        this.key_triggered_button("Spawn square", ["q"], () => this.spawn_prefab(this.shapes.square, Mat4.identity(), this.materials.plastic));
+        this.key_triggered_button("Spawn square", ["q"], () => this.spawn_gameObject(this.shapes.square, Mat4.identity(), [new TestMovement()], this.materials.plastic));
+
+        // TODO: Add button to spawn in a projectile 
 
     }
 
     // Make a special function that spawns in a GameObject into the scene (instantiates a GameObject using a "prefab")
-    spawn_prefab(prefab, start_transform, material)
+    spawn_gameObject(model, start_transform, components, material)
     {
-        this.gameobjects.push(new TestObject(prefab, start_transform, material));
+        this.gameobjects.push(new GameObject(model, start_transform, components, material));
     }
 
     
@@ -89,52 +97,4 @@ export class PhysicsScene extends Base_Scene {
 }
 
 
-// Unity-inspired actor class 
-class GameObject
-{
-    constructor(model, start_transform, material)
-    {
-        this.model = model;
-        this.transform = new Transform(start_transform);
-        this.material = material;
-    }
-    
-    update(time, deltaTime)
-    {
-        // Put custom update stuff here
-    }
-    
-    // DO NOT OVERRIDE
-    draw(context, program_state)
-    {
-        this.model.draw(context, program_state, this.transform.model_transform, this.material);
-    }
-}
 
-// Unity-inspired transform management class
-class Transform
-{
-    constructor(start_transform)
-    {
-        this.model_transform = start_transform;
-    }
-    
-    // Translate the transform relative to the world coordinate system (not relative to its parent)
-    translate(dx, dy, dz)
-    {
-        this.model_transform = Mat4.translation(dx, dy, dz).times(this.model_transform);
-    }
-}
-
-class TestObject extends GameObject
-{
-    constructor(model, start_transform, material)
-    {
-        super(model, start_transform, material);
-    }
-
-    update(time, deltaTime)
-    {
-        this.transform.translate(-deltaTime, deltaTime, 0);
-    }
-}

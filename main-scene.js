@@ -1,6 +1,8 @@
+// Make sure to add an import statement for each new scene
 import {defs, tiny} from './examples/common.js';
 import {FinalProject} from "./final-project.js";
 import {PhysicsScene} from "./physics-scene.js";
+
 // Pull these names into this module's scope for convenience:
 const {
     Vector, Vector3, vec, vec3, vec4, color, Matrix, Mat4, Light, Shape, Material, Shader, Texture, Scene,
