@@ -3,8 +3,8 @@ import {GameObject} from './components/gameobject.js';
 
 // Component import statements
 import {TestMovement} from './components/test_movement.js';
-
-
+import {StayStill} from './components/test_movement.js';
+import {FallDown} from './components/test_movement.js';
 
 const {
     Vector, Vector3, vec, vec3, vec4, color, hex_color, Matrix, Mat4, Light, Shape, Material, Scene,
@@ -61,14 +61,30 @@ export class PhysicsScene extends Base_Scene {
         this.gameobjects = [];                               // List of GameObjects in scene
         
         // Test object
-        this.gameobjects.push(new GameObject(this.shapes.square, Mat4.identity(), [new TestMovement()], this.materials.plastic));
+//         this.gameobjects.push(new GameObject(this.shapes.square, Mat4.identity(), [new TestMovement()], this.materials.plastic));
+        
+        // Testing collision
+        let floor = Mat4.identity();
+        floor = floor.times(Mat4.translation(-5, 0, 0)).times(Mat4.scale(10,1,5));
+        this.gameobjects.push(new GameObject(this.shapes.cube, floor, [new StayStill()], this.materials.plastic));
+
+        let falling = Mat4.identity();
+        let rand_num = Math.random() * (5 + 10) - 10;
+        falling = falling.times(Mat4.translation(-5, 5, 0));
+
+//         this.gameobjects.push(new GameObject(this.shapes.cube, falling, [new FallDown()], this.materials.plastic));
+        
     }
 
     make_control_panel() {
         // Draw the scene's buttons, setup their actions and keyboard shortcuts, and monitor live measurements.
         this.key_triggered_button("Change Colors", ["c"], this.set_colors);
         this.key_triggered_button("Spawn square", ["q"], () => this.spawn_gameObject(this.shapes.square, Mat4.identity(), [new TestMovement()], this.materials.plastic));
-
+        
+        let falling = Mat4.identity();
+        
+        falling = falling.times(Mat4.translation(-5, 5, 0));
+        this.key_triggered_button("Spawn cube", ["n"], () => this.spawn_gameObject(this.shapes.cube, falling, [new FallDown()], this.materials.plastic));
         // TODO: Add button to spawn in a projectile 
 
     }
@@ -88,12 +104,17 @@ export class PhysicsScene extends Base_Scene {
         // Update each GameObject in the scene then draw it
         for(let i = 0; i < this.gameobjects.length; i++)
         {
-            this.gameobjects[i].update(t, dt);
+            // this.gameobjects[i].update(t, dt);
+            if(this.gameobjects[i].transform.model_transform[1][3] < 2){
+                this.gameobjects[i].update(0,0);
+            }
+            else{
+                this.gameobjects[i].update(t, dt);
+            }
             this.gameobjects[i].draw(context, program_state);
+            // console.log(this.gameobjects[i].transform.model_transform[1][3]);
         }
     }
-
-
 }
 
 
