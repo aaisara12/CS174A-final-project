@@ -803,7 +803,7 @@ const Fake_Bump_Map = defs.Fake_Bump_Map =
         }
     }
 
-
+/*
 const Movement_Controls = defs.Movement_Controls =
     class Movement_Controls extends Scene {
         // **Movement_Controls** is a Scene that can be attached to a canvas, like any other
@@ -1001,7 +1001,7 @@ const Movement_Controls = defs.Movement_Controls =
             this.pos = this.inverse().times(vec4(0, 0, 0, 1));
             this.z_axis = this.inverse().times(vec4(0, 0, 1, 0));
         }
-    }
+    }*/
 
 
 const Program_State_Viewer = defs.Program_State_Viewer =
