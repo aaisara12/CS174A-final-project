@@ -14,27 +14,21 @@ class Base_Scene extends Scene {
         this.hover = this.swarm = false;
 
         this.shapes = {
-            'cube': new defs.Cube(),
-            'square': new defs.Square(),
-            'shaft': new defs.Capped_Cylinder(5, 20, [[0, 5], [0, 20]]),
-            'tip': new defs.Closed_Cone(5, 20, [[0, 5], [0, 20]]),
-            'bow': new defs.Cube(),
             'sun': new defs.Subdivision_Sphere(4),
-            'target': new defs.Regular_2D_Polygon(20, 20)
+            'bow': new Bow(),
+            'arrow': new Arrow(),
+            'target': new Target(),
         };
 
         // *** Materials
         this.materials = {
-            plastic: new Material(new defs.Phong_Shader(),
-                {ambient: .4, diffusivity: .6, color: hex_color("#ffffff")}),
             sun: new Material(new defs.Phong_Shader(),
                 {ambient: 1.0}),
             arrow: new Material(new defs.Phong_Shader(),
-                {ambient: .3, diffusivity: .8, color: hex_color('#FF00FF')}),
+                {ambient: .3, diffusivity: .8, color: hex_color('#deb887')}),
             bow: new Material(new defs.Phong_Shader(),
-                {ambient: .3, diffusivity: .8, color: hex_color('#FF00FF')}),
+                {ambient: .3, diffusivity: .8, color: hex_color('#fff8dc')}),
             target: new Material(new Target_Shader())
-            
         };
         // The white material and basic shader are used for drawing the outline.
         this.white = new Material(new defs.Basic_Shader());
@@ -92,37 +86,106 @@ export class FinalProject extends Base_Scene {
 
         // bow
         let bow_transform = Mat4.identity();
-        bow_transform = bow_transform.times(Mat4.translation(0, 0, -5));
-        bow_transform = bow_transform.times(Mat4.scale(0.1, 20, 0.5));
-        this.shapes.cube.draw(context, program_state, bow_transform, this.materials.arrow);
+        bow_transform = bow_transform.times(Mat4.translation(5, 0, -10));
+        this.shapes.bow.draw(context, program_state, bow_transform, this.materials.bow);
 
-        //move
+        // move
         let arrow_transform = Mat4.identity();
-        arrow_transform = arrow_transform.times(Mat4.translation(t - 10, 0, -10));
-        
-        // build arrow object
-
-        arrow_transform = arrow_transform.times(Mat4.scale(1, 1, 1))
-            .times(Mat4.rotation(Math.PI/2, 0, 1, 0))
-            .times(Mat4.scale(0.3, 0.3, 20.0));
-
-//         this.shapes.cube.draw(context, program_state, model_transform, this.materials.plastic.override({color:blue}));
-        this.shapes.shaft.draw(context, program_state, arrow_transform, this.materials.arrow);
-
-        arrow_transform = arrow_transform.times(Mat4.scale(1.0/0.3, 1.0/0.3, 1.0/20))
-            .times(Mat4.translation(0, 0, 10))
-            .times(Mat4.scale(.6, .6, .6));
-
-        this.shapes.tip.draw(context, program_state, arrow_transform, this.materials.arrow);
+        arrow_transform = arrow_transform.times(Mat4.translation(t, 0, -10));
+      
+        // arrow   
+        this.shapes.arrow.draw(context, program_state, arrow_transform, this.materials.arrow);
 
         // target
         let target_transform = Mat4.identity();
-        target_transform = target_transform.times(Mat4.translation(0, 0, -20))
-            .times(Mat4.scale(10,10,10));
-            
+        target_transform = target_transform.times(Mat4.translation(0, 0, -20));
         this.shapes.target.draw(context, program_state, target_transform, this.materials.target);
 
 
+    }
+}
+
+class Sticks extends Shape {
+    constructor(length) {
+        super("position", "normal", "texture_coord");
+        let stick_transform = Mat4.identity();
+        stick_transform = stick_transform.times(Mat4.scale(0.1, length, 0.5));
+        defs.Cube.insert_transformed_copy_into(this, [], stick_transform);
+    }
+
+}
+class Bow extends Shape {
+    constructor() {
+        super("position", "normal", "texture_coord");
+        // upper
+        let upper_bow_transform = Mat4.identity();
+        Sticks.insert_transformed_copy_into(this, [5], upper_bow_transform);
+        upper_bow_transform = upper_bow_transform.times(Mat4.rotation(Math.PI/8, 0, 0, 1))//
+            .times(Mat4.translation(1.9, 9.5, 0));
+        Sticks.insert_transformed_copy_into(this, [5], upper_bow_transform);
+        upper_bow_transform = upper_bow_transform.times(Mat4.rotation(Math.PI/8, 0, 0, 1))//
+            .times(Mat4.translation(1.9, 9.5, 0));
+        Sticks.insert_transformed_copy_into(this, [5], upper_bow_transform);
+
+        // lower
+        let lower_bow_transform = Mat4.identity();
+        Sticks.insert_transformed_copy_into(this, [5], lower_bow_transform);
+        lower_bow_transform = lower_bow_transform.times(Mat4.rotation(-Math.PI/8, 0, 0, 1))//
+            .times(Mat4.translation(1.9, -9.5, 0));
+        Sticks.insert_transformed_copy_into(this, [5], lower_bow_transform);
+        lower_bow_transform = lower_bow_transform.times(Mat4.rotation(-Math.PI/8, 0, 0, 1))//
+            .times(Mat4.translation(1.9, -9.5, 0));
+        Sticks.insert_transformed_copy_into(this, [5], lower_bow_transform);
+
+        // string
+        let string_transform = Mat4.identity();
+        string_transform = string_transform.times(Mat4.scale(.1, 43, .1))
+            .times(Mat4.rotation(Math.PI/2, 1, 0, 0))
+            .times(Mat4.translation(-100, 0, 0));
+        defs.Capped_Cylinder.insert_transformed_copy_into(this, [5, 20, [[0, 5], [0, 20]]], string_transform);
+    }
+}
+class Arrow extends Shape {
+    constructor() {
+        super("position", "normal", "texture_coord");
+        // shaft
+        let shaft_transform = Mat4.identity();
+        shaft_transform = shaft_transform.times(Mat4.rotation(Math.PI/2, 0, 1, 0))
+            .times(Mat4.scale(0.3, 0.3, 20.0));
+        defs.Capped_Cylinder.insert_transformed_copy_into(this, [5, 20, [[0, 5], [0, 20]]], shaft_transform);
+        
+        // tip
+        let tip_transform = Mat4.identity();
+        tip_transform = tip_transform.times(Mat4.rotation(Math.PI/2, 0, 1, 0))
+            .times(Mat4.translation(0, 0, 10))
+            .times(Mat4.scale(.6, .6, .6));
+        defs.Closed_Cone.insert_transformed_copy_into(this, [5, 20, [[0, 5], [0, 20]]], tip_transform);
+
+        // fletching
+        let fletching_transform = Mat4.identity();
+        fletching_transform = fletching_transform.times(Mat4.translation(-10, 0, 0))
+            .times(Mat4.scale(2, 2, 2));
+        defs.Triangle.insert_transformed_copy_into(this, [], fletching_transform);
+
+        fletching_transform = fletching_transform.times(Mat4.rotation(Math.PI/2, 1, 0, 0));
+        defs.Triangle.insert_transformed_copy_into(this, [], fletching_transform);
+
+        fletching_transform = fletching_transform.times(Mat4.rotation(Math.PI/2, 1, 0, 0));
+        defs.Triangle.insert_transformed_copy_into(this, [], fletching_transform);
+
+        fletching_transform = fletching_transform.times(Mat4.rotation(Math.PI/2, 1, 0, 0));
+        defs.Triangle.insert_transformed_copy_into(this, [], fletching_transform);
+
+
+    }
+}
+
+class Target extends Shape {
+    constructor() {
+        super("position", "normal", "texture_coord");
+        let target_transform = Mat4.identity();
+        target_transform = target_transform.times(Mat4.scale(15,15,0));
+        defs.Regular_2D_Polygon.insert_transformed_copy_into(this, [20, 20], target_transform);
     }
 }
 
@@ -143,6 +206,7 @@ class Target_Shader extends Shader {
         precision mediump float;
         varying vec4 point_position;
         varying vec4 center;
+        const float max_dist = 15.0;
         `;
     }
 
@@ -166,8 +230,19 @@ class Target_Shader extends Shader {
         // TODO:  Complete the main function of the fragment shader (Extra Credit Part II).
         return this.shared_glsl_code() + `
         void main(){
-            float gradient = sin(80.0 * distance(point_position, center));
-            gl_FragColor = vec4(0.69, 0.5, 0.25, 1.0) * gradient;
+            //float gradient = sin(1.6 * distance(point_position, center));
+            float dist = distance(point_position, center);
+            float ratio = dist/max_dist;
+            if(ratio < 0.2)
+                gl_FragColor = vec4(0.83, 0.68, 0.21, 1.0);
+            else if (ratio < 0.4)
+                gl_FragColor = vec4(1.0, 0.0, 0.0, 1.0);
+            else if (ratio < 0.6)
+                gl_FragColor = vec4(0.0, 0.0, 1.0, 1.0);
+            else if (ratio < 0.8)
+                gl_FragColor = vec4(0.0, 0.0, 0.0, 1.0);
+            else
+                gl_FragColor = vec4(1.0, 1.0, 1.0, 1.0);
         }`;
     }
 }
