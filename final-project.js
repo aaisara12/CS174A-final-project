@@ -73,9 +73,9 @@ export class FinalProject extends Base_Scene {
 
         // sun
         let sun_transform = Mat4.identity();
-        let a = 2;
-        let b = 1;
-        let w = (1/5) * Math.PI; 
+        let a = 3;
+        let b = 1.5;
+        let w = (1/3) * Math.PI; 
         let sun_radius = a + b*Math.sin(w*t);
         let color_gradient = 0.5 + 0.5*Math.sin(w * t)
         let sun_color = vec4(1, color_gradient, color_gradient, 1);
@@ -99,7 +99,8 @@ export class FinalProject extends Base_Scene {
 
         // target
         let target_transform = Mat4.identity();
-        target_transform = target_transform.times(Mat4.translation(0, 0, -20));
+        target_transform = target_transform.times(Mat4.rotation(Math.PI/2, 0, 1, 0))
+            .times(Mat4.translation(10, 0, 50));
         this.shapes.target.draw(context, program_state, target_transform, this.materials.target);
 
 
@@ -125,20 +126,20 @@ class Bow extends Shape {
         let upper_bow_transform = Mat4.identity();
         Sticks.insert_transformed_copy_into(this, [5], upper_bow_transform);
         upper_bow_transform = upper_bow_transform.times(Mat4.rotation(Math.PI/8, 0, 0, 1))//
-            .times(Mat4.translation(1.9, 9.5, 0));
+            .times(Mat4.translation(1.89, 9.5, 0));
         Sticks.insert_transformed_copy_into(this, [5], upper_bow_transform);
         upper_bow_transform = upper_bow_transform.times(Mat4.rotation(Math.PI/8, 0, 0, 1))//
-            .times(Mat4.translation(1.9, 9.5, 0));
+            .times(Mat4.translation(1.89, 9.5, 0));
         Sticks.insert_transformed_copy_into(this, [5], upper_bow_transform);
 
         // lower
         let lower_bow_transform = Mat4.identity();
         Sticks.insert_transformed_copy_into(this, [5], lower_bow_transform);
         lower_bow_transform = lower_bow_transform.times(Mat4.rotation(-Math.PI/8, 0, 0, 1))//
-            .times(Mat4.translation(1.9, -9.5, 0));
+            .times(Mat4.translation(1.89, -9.5, 0));
         Sticks.insert_transformed_copy_into(this, [5], lower_bow_transform);
         lower_bow_transform = lower_bow_transform.times(Mat4.rotation(-Math.PI/8, 0, 0, 1))//
-            .times(Mat4.translation(1.9, -9.5, 0));
+            .times(Mat4.translation(1.89, -9.5, 0));
         Sticks.insert_transformed_copy_into(this, [5], lower_bow_transform);
 
         // string
@@ -191,7 +192,7 @@ class Target extends Shape {
     constructor() {
         super("position", "normal", "texture_coord");
         let target_transform = Mat4.identity();
-        target_transform = target_transform.times(Mat4.scale(10,10,1.1));
+        target_transform = target_transform.times(Mat4.scale(20,20,1.1));
         defs.Capped_Cylinder.insert_transformed_copy_into(this, [5, 20, [[0, 5], [0, 20]]], target_transform);
     }
 }
@@ -212,7 +213,7 @@ class Target_Shader extends Shader {
         precision mediump float;
         varying vec4 point_position;
         varying vec4 center;
-        const float max_dist = 10.0;
+        const float max_dist = 20.0;
 
         const int N_LIGHTS = ` + this.num_lights + `;
         uniform float ambient, diffusivity, specularity, smoothness;
@@ -225,7 +226,7 @@ class Target_Shader extends Shader {
         // pixel fragment's proximity to each of the 3 vertices (barycentric interpolation).
         varying vec3 N, vertex_worldspace;
         // ***** PHONG SHADING HAPPENS HERE: *****                                       
-        vec3 phong_model_lights( vec3 N, vec3 vertex_worldspace ){                                        
+        vec3 phong_model_lights( vec3 N, vec3 vertex_worldspace, vec4 input_color ){                                        
             // phong_model_lights():  Add up the lights' contributions.
             vec3 E = normalize( camera_center - vertex_worldspace );
             vec3 result = vec3( 0.0 );
@@ -247,7 +248,8 @@ class Target_Shader extends Shader {
                 float specular = pow( max( dot( N, H ), 0.0 ), smoothness );
                 float attenuation = 1.0 / (1.0 + light_attenuation_factors[i] * distance_to_light * distance_to_light );
                 
-                vec3 light_contribution = shape_color.xyz * light_colors[i].xyz * diffusivity * diffuse
+
+                vec3 light_contribution = (input_color.xyz/ambient) * light_colors[i].xyz * diffusivity * diffuse
                                                           + light_colors[i].xyz * specularity * specular;
                 result += attenuation * light_contribution;
             }
@@ -286,29 +288,31 @@ class Target_Shader extends Shader {
             if(ratio > 0.095 && ratio < 0.105) // these type lines are to just make the middle separation line
                 gl_FragColor = vec4(0.0, 0.0, 0.0, 1.0); // actual color
             else if(ratio < 0.2)
-                gl_FragColor = vec4(0.83 * ambient, 0.68 * ambient, 0.21 * ambient, 1.0);
+                gl_FragColor = vec4(0.83, 0.68, 0.21, 1.0);
             // red
             else if(ratio > 0.295 && ratio < 0.305)
                 gl_FragColor = vec4(0.0, 0.0, 0.0, 1.0);
             else if (ratio < 0.4)
-                gl_FragColor = vec4(1.0 * ambient, 0.0, 0.0, 1.0);
+                gl_FragColor = vec4(1.0, 0.0, 0.0, 1.0);
             // blue
             else if(ratio > 0.495 && ratio < 0.505)
                 gl_FragColor = vec4(0.0, 0.0, 0.0, 1.0);
             else if (ratio < 0.6)
-                gl_FragColor = vec4(0.2 * ambient, 0.7 * ambient, 1.0 * ambient, 1.0);
+                gl_FragColor = vec4(0.2, 0.7, 1.0, 1.0);
             // black
             else if(ratio > 0.695 && ratio < 0.705)
-                gl_FragColor = vec4(1.0 * ambient, 1.0 * ambient, 1.0 * ambient, 1.0);
+                gl_FragColor = vec4(1.0, 1.0, 1.0, 1.0);
             else if (ratio < 0.8)
                 gl_FragColor = vec4(0.0, 0.0, 0.0, 1.0);
             // white
             else if(ratio > 0.895 && ratio < 0.905)
                 gl_FragColor = vec4(0.0, 0.0, 0.0, 1.0);
             else
-                gl_FragColor = vec4(1.0 * ambient, 1.0 * ambient, 1.0 * ambient, 1.0);
+                gl_FragColor = vec4(1.0, 1.0, 1.0, 1.0);
+            gl_FragColor.xyz *= ambient;
+
             // Compute the final color with contributions from lights:
-            gl_FragColor.xyz += phong_model_lights( normalize( N ), vertex_worldspace );
+            gl_FragColor.xyz += phong_model_lights( normalize( N ), vertex_worldspace, gl_FragColor);
             
         }`;
     }
