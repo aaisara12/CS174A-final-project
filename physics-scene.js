@@ -5,6 +5,7 @@ import {GameObject} from './components/gameobject.js';
 import {TestMovement} from './components/test_movement.js';
 import {StayStill} from './components/test_movement.js';
 import {FallDown} from './components/test_movement.js';
+import {ForwardDown} from './components/test_movement.js';
 
 const {
     Vector, Vector3, vec, vec3, vec4, color, hex_color, Matrix, Mat4, Light, Shape, Material, Scene,
@@ -81,10 +82,9 @@ export class PhysicsScene extends Base_Scene {
         this.key_triggered_button("Change Colors", ["c"], this.set_colors);
         this.key_triggered_button("Spawn square", ["q"], () => this.spawn_gameObject(this.shapes.square, Mat4.identity(), [new TestMovement()], this.materials.plastic));
         
-        let falling = Mat4.identity();
-        
-        falling = falling.times(Mat4.translation(-5, 5, 0));
-        this.key_triggered_button("Spawn cube", ["n"], () => this.spawn_gameObject(this.shapes.cube, falling, [new FallDown()], this.materials.plastic));
+        let cube_direction = Mat4.identity();
+        cube_direction = cube_direction.times(Mat4.translation(-5, 5, 0));
+        this.key_triggered_button("Spawn cube", ["n"], () => this.spawn_gameObject(this.shapes.cube, cube_direction, [new ForwardDown()], this.materials.plastic));
         // TODO: Add button to spawn in a projectile 
 
     }
@@ -105,14 +105,15 @@ export class PhysicsScene extends Base_Scene {
         for(let i = 0; i < this.gameobjects.length; i++)
         {
             // this.gameobjects[i].update(t, dt);
-            if(this.gameobjects[i].transform.model_transform[1][3] < 2){
+            
+            if(this.gameobjects[i].transform.model_transform[0][3] > 5){
                 this.gameobjects[i].update(0,0);
             }
             else{
                 this.gameobjects[i].update(t, dt);
             }
             this.gameobjects[i].draw(context, program_state);
-            // console.log(this.gameobjects[i].transform.model_transform[1][3]);
+            // console.log(this.gameobjects[i].transform.model_transform[1][3]); y value
         }
     }
 }

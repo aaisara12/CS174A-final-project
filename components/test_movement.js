@@ -16,12 +16,17 @@ export class FallDown extends Component
     }
 }
 
-
 export class StayStill extends Component
 {
     update(time, deltaTime)
     {
         // this.gameObject.transform.translate(-deltaTime, deltaTime, 0);
         this.gameObject.transform.translate(0, 0, 0);
+    }
+}
+
+export class ForwardDown extends Component{
+    update(time, deltaTime){
+        this.gameObject.transform.translate(10*deltaTime, -.5*deltaTime, 0);
     }
 }
