@@ -1,11 +1,11 @@
 import {defs, tiny} from './examples/common.js';
-import {GameObject} from './components/gameobject.js';
+import {GameObject} from './gameobject.js';
 
 // Component import statements
-import {TestMovement} from './components/test_movement.js';
-import {StayStill} from './components/test_movement.js';
-import {FallDown} from './components/test_movement.js';
-import {ForwardDown} from './components/test_movement.js';
+import {TestMovement} from './component.js';
+import {StayStill} from './component.js';
+import {FallDown} from './component.js';
+import {ForwardDown} from './component.js';
 
 const {
     Vector, Vector3, vec, vec3, vec4, color, hex_color, Matrix, Mat4, Light, Shape, Material, Scene,
