@@ -2,10 +2,8 @@ import {defs, tiny} from './examples/common.js';
 import {GameObject} from './gameobject.js';
 
 // Component import statements
-import {TestMovement} from './component.js';
-import {StayStill} from './component.js';
-import {FallDown} from './component.js';
-import {ForwardDown} from './component.js';
+import {components} from './component.js';
+
 
 const {
     Vector, Vector3, vec, vec3, vec4, color, hex_color, Matrix, Mat4, Light, Shape, Material, Scene,
@@ -67,7 +65,7 @@ export class PhysicsScene extends Base_Scene {
         // Testing collision
         let floor = Mat4.identity();
         floor = floor.times(Mat4.translation(-5, 0, 0)).times(Mat4.scale(10,1,5));
-        this.gameobjects.push(new GameObject(this.shapes.cube, floor, [new StayStill()], this.materials.plastic));
+        this.gameobjects.push(new GameObject(this.shapes.cube, floor, [new components.StayStill()], this.materials.plastic));
 
         let falling = Mat4.identity();
         let rand_num = Math.random() * (5 + 10) - 10;
@@ -80,11 +78,11 @@ export class PhysicsScene extends Base_Scene {
     make_control_panel() {
         // Draw the scene's buttons, setup their actions and keyboard shortcuts, and monitor live measurements.
         this.key_triggered_button("Change Colors", ["c"], this.set_colors);
-        this.key_triggered_button("Spawn square", ["q"], () => this.spawn_gameObject(this.shapes.square, Mat4.identity(), [new TestMovement()], this.materials.plastic));
+        this.key_triggered_button("Spawn square", ["q"], () => this.spawn_gameObject(this.shapes.square, Mat4.identity(), [new components.TestMovement()], this.materials.plastic));
         
         let cube_direction = Mat4.identity();
         cube_direction = cube_direction.times(Mat4.translation(-5, 5, 0));
-        this.key_triggered_button("Spawn cube", ["n"], () => this.spawn_gameObject(this.shapes.cube, cube_direction, [new ForwardDown()], this.materials.plastic));
+        this.key_triggered_button("Spawn cube", ["n"], () => this.spawn_gameObject(this.shapes.cube, cube_direction, [new components.ForwardDown()], this.materials.plastic));
         // TODO: Add button to spawn in a projectile 
 
     }

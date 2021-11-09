@@ -4,7 +4,7 @@ import {model_defs} from './model-defs.js';
 
 // Components
 import {GameObject} from './gameobject.js';
-import {ForwardDown} from './component.js';
+import {components} from './component.js';
 
 const {
     Vector, Vector3, vec, vec3, vec4, color, hex_color, Shader, Matrix, Mat4, Light, Shape, Material, Scene,
@@ -290,17 +290,14 @@ export class FinalProject extends Base_Scene {
     make_control_panel() {
         // Draw the scene's buttons, setup their actions and keyboard shortcuts, and monitor live measurements.
         this.key_triggered_button("Change Colors", ["c"], this.set_colors);
-        this.key_triggered_button("Spawn Arrow", ["v"], () => this.spawn_gameObject(this.shapes.arrow, Mat4.identity(), [new ForwardDown()], this.materials.arrow));
+        this.key_triggered_button("Spawn Arrow", ["v"], () => this.spawn_gameObject(this.shapes.arrow, Mat4.identity(), [new components.ForwardDown()], this.materials.arrow));
     }
 
     
     display(context, program_state) {
         super.display(context, program_state);
-        const blue = hex_color("#1a9ffa");
         
         const t = program_state.animation_time / 1000, dt = program_state.animation_delta_time / 1000;
-        // Example for drawing a cube, you can remove this line if needed
-        // this.shapes.cube.draw(context, program_state, model_transform, this.materials.plastic.override({color:blue}));
 
         // sun
         let sun_transform = Mat4.identity();
