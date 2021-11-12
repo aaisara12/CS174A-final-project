@@ -54,3 +54,11 @@ const ForwardDown = components.ForwardDown =
             this.gameObject.transform.translate(10*deltaTime, -.5*deltaTime, 0);
         }
     }
+
+const RandomDirection = components.RandomDirection = 
+    class RandomDirection extends Component{
+        update(time, deltaTime){
+            var randomFactor = Math.random() * (10 - 5) + 5;
+            this.gameObject.transform.translate(randomFactor * 2 * deltaTime, randomFactor * deltaTime, 0);
+        }
+    }

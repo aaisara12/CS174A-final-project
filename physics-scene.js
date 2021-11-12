@@ -112,6 +112,7 @@ export class PhysicsScene extends Base_Scene {
             }
             this.gameobjects[i].draw(context, program_state);
             // console.log(this.gameobjects[i].transform.model_transform[1][3]); y value
+            console.log(this.gameobjects[i].transform.model_transform[0][3]);
         }
     }
 }

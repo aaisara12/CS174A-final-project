@@ -290,7 +290,10 @@ export class FinalProject extends Base_Scene {
     make_control_panel() {
         // Draw the scene's buttons, setup their actions and keyboard shortcuts, and monitor live measurements.
         this.key_triggered_button("Change Colors", ["c"], this.set_colors);
-        this.key_triggered_button("Spawn Arrow", ["v"], () => this.spawn_gameObject(this.shapes.arrow, Mat4.identity(), [new components.ForwardDown()], this.materials.arrow));
+        this.key_triggered_button("Spawn Arrow", ["v"], () => this.spawn_gameObject(this.shapes.arrow,
+         Mat4.identity().times(Mat4.translation(0,0,-10)),[new components.ForwardDown()], this.materials.arrow));
+        this.key_triggered_button("Spawn Arrow Outside", ["x"], () => this.spawn_gameObject(this.shapes.arrow,
+         Mat4.identity().times(Mat4.translation(0,0,-10)),[new components.RandomDirection()], this.materials.arrow));
     }
 
     
@@ -322,8 +325,9 @@ export class FinalProject extends Base_Scene {
         let arrow_transform = Mat4.identity();
         arrow_transform = arrow_transform.times(Mat4.translation(t, 0, -10));
       
-        // arrow   
-        this.shapes.arrow.draw(context, program_state, arrow_transform, this.materials.arrow);
+        // arrow 
+        // I commented this out for cleanliness - Ryan  
+        // this.shapes.arrow.draw(context, program_state, arrow_transform, this.materials.arrow);
 
         // target
         let target_transform = Mat4.identity();
@@ -336,7 +340,9 @@ export class FinalProject extends Base_Scene {
         for(let i = 0; i < this.gameobjects.length; i++)
         {
             
-            if(this.gameobjects[i].transform.model_transform[0][3] > 50){
+            if(this.gameobjects[i].transform.model_transform[0][3] + 11 > target_transform[0][3] && 
+            this.gameobjects[i].transform.model_transform[1][3] > target_transform[1][3] - 20 &&
+            this.gameobjects[i].transform.model_transform[1][3] < target_transform[1][3] + 20){
                 this.gameobjects[i].update(0,0);
             }
             else{
