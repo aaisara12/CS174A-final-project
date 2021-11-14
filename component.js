@@ -62,3 +62,10 @@ const RandomDirection = components.RandomDirection =
             this.gameObject.transform.translate(randomFactor * 2 * deltaTime, randomFactor * deltaTime, 0);
         }
     }
+
+const Outside = components.Outside = 
+    class Outside extends Component{
+        update(time, deltaTime){
+            this.gameObject.transform.translate(15*deltaTime, 10*deltaTime, 0);
+        }
+    }

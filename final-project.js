@@ -292,8 +292,10 @@ export class FinalProject extends Base_Scene {
         this.key_triggered_button("Change Colors", ["c"], this.set_colors);
         this.key_triggered_button("Spawn Arrow", ["v"], () => this.spawn_gameObject(this.shapes.arrow,
          Mat4.identity().times(Mat4.translation(0,0,-10)),[new components.ForwardDown()], this.materials.arrow));
-        this.key_triggered_button("Spawn Arrow Outside", ["x"], () => this.spawn_gameObject(this.shapes.arrow,
+        this.key_triggered_button("Spawn Arrow Towards Edge", ["x"], () => this.spawn_gameObject(this.shapes.arrow,
          Mat4.identity().times(Mat4.translation(0,0,-10)),[new components.RandomDirection()], this.materials.arrow));
+        this.key_triggered_button("Spawn Arrow Outside", ["o"], () => this.spawn_gameObject(this.shapes.arrow,
+         Mat4.identity().times(Mat4.translation(0,0,-10)),[new components.Outside()], this.materials.arrow));
     }
 
     
