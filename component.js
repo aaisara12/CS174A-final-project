@@ -55,17 +55,30 @@ const ForwardDown = components.ForwardDown =
         }
     }
 
-const RandomDirection = components.RandomDirection = 
-    class RandomDirection extends Component{
+const InsideTop = components.InsideTop = 
+    class InsideTop extends Component{
         update(time, deltaTime){
-            var randomFactor = Math.random() * (10 - 5) + 5;
-            this.gameObject.transform.translate(randomFactor * 2 * deltaTime, randomFactor * deltaTime, 0);
+            this.gameObject.transform.translate(18*deltaTime, 10*deltaTime, 0);
         }
     }
 
 const Outside = components.Outside = 
     class Outside extends Component{
         update(time, deltaTime){
-            this.gameObject.transform.translate(15*deltaTime, 10*deltaTime, 0);
+            this.gameObject.transform.translate(17*deltaTime, 10*deltaTime, 0);
+        }
+    }
+
+const OutsideRight = components.OutsideRight =
+    class OutsideRight extends Component{
+        update(time, deltaTime){
+            this.gameObject.transform.translate(17 * deltaTime, 0, 10* deltaTime);
+        }
+    }
+
+const EdgeRight = components.EdgeRight =
+    class EdgeRight extends Component{
+        update(time, deltaTime){
+            this.gameObject.transform.translate(18 * deltaTime, 0, 10* deltaTime);
         }
     }

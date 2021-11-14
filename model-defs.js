@@ -100,40 +100,41 @@ class Drawn_Bow extends Shape {
 }
 
 // arrow object class
-class Arrow extends Shape {
-    constructor() {
-        super("position", "normal", "texture_coord");
-        // shaft
-        let shaft_transform = Mat4.identity();
-        shaft_transform = shaft_transform.times(Mat4.rotation(Math.PI/2, 0, 1, 0))
-            .times(Mat4.scale(0.3, 0.3, 30.0));
-        defs.Capped_Cylinder.insert_transformed_copy_into(this, [5, 20, [[0, 5], [0, 20]]], shaft_transform);
-        
-        // tip
-        let tip_transform = Mat4.identity();
-        tip_transform = tip_transform.times(Mat4.rotation(Math.PI/2, 0, 1, 0))
-            .times(Mat4.translation(0, 0, 15))
-            .times(Mat4.scale(.6, .6, .6));
-        defs.Closed_Cone.insert_transformed_copy_into(this, [5, 20, [[0, 5], [0, 20]]], tip_transform);
+const Arrow = model_defs.Arrow = 
+    class Arrow extends Shape {
+        constructor() {
+            super("position", "normal", "texture_coord");
+            // shaft
+            let shaft_transform = Mat4.identity();
+            shaft_transform = shaft_transform.times(Mat4.rotation(Math.PI/2, 0, 1, 0))
+                .times(Mat4.scale(0.3, 0.3, 30.0));
+            defs.Capped_Cylinder.insert_transformed_copy_into(this, [5, 20, [[0, 5], [0, 20]]], shaft_transform);
 
-        // fletching
-        let fletching_transform = Mat4.identity();
-        fletching_transform = fletching_transform.times(Mat4.translation(-15, 0, 0))
-            .times(Mat4.scale(2, 2, 2));
-        defs.Triangle.insert_transformed_copy_into(this, [], fletching_transform);
+            // tip
+            let tip_transform = Mat4.identity();
+            tip_transform = tip_transform.times(Mat4.rotation(Math.PI/2, 0, 1, 0))
+                .times(Mat4.translation(0, 0, 15))
+                .times(Mat4.scale(.6, .6, .6));
+            defs.Closed_Cone.insert_transformed_copy_into(this, [5, 20, [[0, 5], [0, 20]]], tip_transform);
 
-        fletching_transform = fletching_transform.times(Mat4.rotation(Math.PI/2, 1, 0, 0));
-        defs.Triangle.insert_transformed_copy_into(this, [], fletching_transform);
+            // fletching
+            let fletching_transform = Mat4.identity();
+            fletching_transform = fletching_transform.times(Mat4.translation(-15, 0, 0))
+                .times(Mat4.scale(2, 2, 2));
+            defs.Triangle.insert_transformed_copy_into(this, [], fletching_transform);
 
-        fletching_transform = fletching_transform.times(Mat4.rotation(Math.PI/2, 1, 0, 0));
-        defs.Triangle.insert_transformed_copy_into(this, [], fletching_transform);
+            fletching_transform = fletching_transform.times(Mat4.rotation(Math.PI/2, 1, 0, 0));
+            defs.Triangle.insert_transformed_copy_into(this, [], fletching_transform);
 
-        fletching_transform = fletching_transform.times(Mat4.rotation(Math.PI/2, 1, 0, 0));
-        defs.Triangle.insert_transformed_copy_into(this, [], fletching_transform);
+            fletching_transform = fletching_transform.times(Mat4.rotation(Math.PI/2, 1, 0, 0));
+            defs.Triangle.insert_transformed_copy_into(this, [], fletching_transform);
+
+            fletching_transform = fletching_transform.times(Mat4.rotation(Math.PI/2, 1, 0, 0));
+            defs.Triangle.insert_transformed_copy_into(this, [], fletching_transform);
 
 
+        }
     }
-}
 
 //board object class
 class Board extends Shape {
