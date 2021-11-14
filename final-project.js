@@ -14,10 +14,13 @@ class Base_Scene extends Scene {
         this.hover = this.swarm = false;
 
         this.shapes = {
+            'sky': new defs.Subdivision_Sphere(4),
             'sun': new defs.Subdivision_Sphere(4), // declare shapes
             'bow': new Bow(),
+            'drawn_bow': new Drawn_Bow(),
             'arrow': new Arrow(),
             'target': new Target(),
+            'board': new Board(),
         };
 
         // *** Materials
@@ -29,7 +32,9 @@ class Base_Scene extends Scene {
             bow: new Material(new defs.Phong_Shader(),
                 {ambient: .3, diffusivity: .8, color: hex_color('#fff8dc')}),
             target: new Material(new Target_Shader(),
-                {ambient: .3, diffusivity: .8})
+                {ambient: .3, diffusivity: .8}),
+            board: new Material(new defs.Phong_Shader(),
+                {ambient: .3, diffusivity: .8, color: hex_color('#fff8dc')}),
         };
         // The white material and basic shader are used for drawing the outline.
         this.white = new Material(new defs.Basic_Shader());
@@ -71,6 +76,10 @@ export class FinalProject extends Base_Scene {
         // Example for drawing a cube, you can remove this line if needed
         // this.shapes.cube.draw(context, program_state, model_transform, this.materials.plastic.override({color:blue}));
 
+        // sky
+        let sky_transform = Mat4.identity();
+        sky_transform = sky_transform.times(Mat4.scale(200, 200, 200));
+        this.shapes.sky.draw(context, program_state, sky_transform, this.materials.bow);
         // sun
         let sun_transform = Mat4.identity();
         let a = 3;
@@ -89,6 +98,8 @@ export class FinalProject extends Base_Scene {
         let bow_transform = Mat4.identity();
         bow_transform = bow_transform.times(Mat4.translation(5, 0, -10));
         this.shapes.bow.draw(context, program_state, bow_transform, this.materials.bow);
+        bow_transform = bow_transform.times(Mat4.translation(0, 0, -10));
+        this.shapes.drawn_bow.draw(context, program_state, bow_transform, this.materials.bow);
 
         // move
         let arrow_transform = Mat4.identity();
@@ -103,7 +114,9 @@ export class FinalProject extends Base_Scene {
             .times(Mat4.translation(10, 0, 50));
         this.shapes.target.draw(context, program_state, target_transform, this.materials.target);
 
-
+        let board_transform = Mat4.identity();
+        board_transform = board_transform.times(Mat4.translation(0, 0, -25));
+        this.shapes.board.draw(context,program_state, board_transform, this.materials.board);
     }
 }
 
@@ -151,6 +164,51 @@ class Bow extends Shape {
     }
 }
 
+class Drawn_Bow extends Shape {
+    constructor() {
+        super("position", "normal", "texture_coord");
+        // upper
+        let upper_bow_transform = Mat4.identity();
+        Sticks.insert_transformed_copy_into(this, [5], upper_bow_transform);
+        upper_bow_transform = upper_bow_transform.times(Mat4.rotation(Math.PI/5, 0, 0, 1))//
+            .times(Mat4.translation(3, 9, 0));
+        Sticks.insert_transformed_copy_into(this, [5], upper_bow_transform);
+        upper_bow_transform = upper_bow_transform.times(Mat4.rotation(Math.PI/5, 0, 0, 1))//
+            .times(Mat4.translation(3, 9, 0));
+        Sticks.insert_transformed_copy_into(this, [5], upper_bow_transform);
+
+        // lower
+        let lower_bow_transform = Mat4.identity();
+        Sticks.insert_transformed_copy_into(this, [5], lower_bow_transform);
+        lower_bow_transform = lower_bow_transform.times(Mat4.rotation(-Math.PI/5, 0, 0, 1))//
+            .times(Mat4.translation(3, -9, 0));
+        Sticks.insert_transformed_copy_into(this, [5], lower_bow_transform);
+        lower_bow_transform = lower_bow_transform.times(Mat4.rotation(-Math.PI/5, 0, 0, 1))//
+            .times(Mat4.translation(3, -9, 0));
+        Sticks.insert_transformed_copy_into(this, [5], lower_bow_transform);
+
+        // string
+        let string_transform = Mat4.identity();
+        string_transform = string_transform.times(Mat4.rotation(Math.PI/2, 1, 0, 0))
+            .times(Mat4.rotation(-Math.PI/4, 0, 1, 0))
+            .times(Mat4.scale(.1, .1, 45/2))
+            .times(Mat4.translation(-20 / 0.1, 0 / 0.1, 9.5 / (45/2)));
+        defs.Capped_Cylinder.insert_transformed_copy_into(this, [5, 20, [[0, 5], [0, 20]]], string_transform);
+
+        let string2_transform = Mat4.identity();
+        string2_transform = string2_transform.times(Mat4.rotation(Math.PI/2, 1, 0, 0))
+            .times(Mat4.rotation(Math.PI/4, 0, 1, 0))
+            .times(Mat4.scale(.1, .1, 45/2))
+            .times(Mat4.translation(-20 / 0.1, 0 / 0.1, -9.5 / (45/2)));
+        defs.Capped_Cylinder.insert_transformed_copy_into(this, [5, 20, [[0, 5], [0, 20]]], string2_transform);
+
+        //arrow 
+        let arrow_transform = Mat4.identity();
+        arrow_transform = arrow_transform.times(Mat4.translation(-15, 0, 0));
+        Arrow.insert_transformed_copy_into(this, [], arrow_transform);
+    }
+}
+
 // arrow object class
 class Arrow extends Shape {
     constructor() {
@@ -158,19 +216,19 @@ class Arrow extends Shape {
         // shaft
         let shaft_transform = Mat4.identity();
         shaft_transform = shaft_transform.times(Mat4.rotation(Math.PI/2, 0, 1, 0))
-            .times(Mat4.scale(0.3, 0.3, 20.0));
+            .times(Mat4.scale(0.3, 0.3, 30.0));
         defs.Capped_Cylinder.insert_transformed_copy_into(this, [5, 20, [[0, 5], [0, 20]]], shaft_transform);
         
         // tip
         let tip_transform = Mat4.identity();
         tip_transform = tip_transform.times(Mat4.rotation(Math.PI/2, 0, 1, 0))
-            .times(Mat4.translation(0, 0, 10))
+            .times(Mat4.translation(0, 0, 15))
             .times(Mat4.scale(.6, .6, .6));
         defs.Closed_Cone.insert_transformed_copy_into(this, [5, 20, [[0, 5], [0, 20]]], tip_transform);
 
         // fletching
         let fletching_transform = Mat4.identity();
-        fletching_transform = fletching_transform.times(Mat4.translation(-10, 0, 0))
+        fletching_transform = fletching_transform.times(Mat4.translation(-15, 0, 0))
             .times(Mat4.scale(2, 2, 2));
         defs.Triangle.insert_transformed_copy_into(this, [], fletching_transform);
 
@@ -185,6 +243,17 @@ class Arrow extends Shape {
 
 
     }
+}
+
+//board object class
+class Board extends Shape {
+    constructor() {
+        super("position", "normal", "texture_coord");
+        let board_transform = Mat4.identity();
+        board_transform = board_transform.times(Mat4.scale(2, 2, 0.1));
+        defs.Cube.insert_transformed_copy_into(this, [], board_transform);
+    }
+
 }
 
 //target object class
