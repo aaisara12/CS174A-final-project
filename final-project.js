@@ -55,6 +55,9 @@ class Base_Scene extends Scene {
         };
         // The white material and basic shader are used for drawing the outline.
         this.white = new Material(new defs.Basic_Shader());
+	this.attached = 0; //initial camera value
+        this.cam = "Yes"; //free cam or no 
+        this.arrow_power=0;
     }
 
     display(context, program_state) {
@@ -294,7 +297,8 @@ export class FinalProject extends Base_Scene {
         super();
         
         this.gameobjects = [];                               // List of GameObjects in scene       
-        
+        this.pow_multiplier = 1;
+        this.inc = 1;
     }
 
     // Make a special function that spawns in a GameObject into the scene (instantiates a GameObject using a "prefab")
@@ -302,7 +306,22 @@ export class FinalProject extends Base_Scene {
     {
         this.gameobjects.push(new GameObject(model, start_transform, components, material));
     }
+    powerAdj() {
+        if(this.inc)
+            this.pow_multiplier += Math.random()*5;
+        else
+            this.pow_multiplier -= Math.random()*5;
 
+
+        if(this.pow_multiplier<1){
+            this.pow_multiplier = 1;
+            this.inc = 1;
+        }
+        else if (this.pow_multiplier > 100){
+            this.pow_multiplier = 100;
+            this.inc = 0;
+        }
+    }
     make_control_panel() {
         // Draw the scene's buttons, setup their actions and keyboard shortcuts, and monitor live measurements.
         this.key_triggered_button("Change Colors", ["c"], this.set_colors);
@@ -316,6 +335,19 @@ export class FinalProject extends Base_Scene {
          Mat4.identity().times(Mat4.translation(0,0,-10)),[new components.OutsideRight()], this.materials.arrow));
         this.key_triggered_button("Spawn Arrow Edge Right", ["h"], () => this.spawn_gameObject(this.shapes.arrow,
          Mat4.identity().times(Mat4.translation(0,0,-10)),[new components.EdgeRight()], this.materials.arrow));
+    	this.key_triggered_button("Lock First Person", ["t"], () => this.attached = () => 1);
+        this.key_triggered_button("Lock Third Person", ["y"], () => this.attached = () => 3);
+        this.new_line();
+        this.key_triggered_button("Free Cam", ["h"], () => this.attached = () => "f");
+        this.live_string(box => box.textContent = "Free Camera View?: " + this.cam);
+        this.new_line();
+        const pow_controls = this.control_panel.appendChild(document.createElement("span"));
+            //speed_controls.style.margin = "30px";
+            this.key_triggered_button("POWER", ["p"], this.powerAdj, "#add8e6", undefined, undefined, pow_controls);
+            this.live_string(box => {
+                box.textContent = "Arrow Power: " + this.pow_multiplier.toFixed(2)
+            }, pow_controls);
+                this.new_line();
     }
 
     
@@ -375,6 +407,23 @@ export class FinalProject extends Base_Scene {
             this.gameobjects[i].draw(context, program_state);
             console.log(target_transform[0][3], target_transform[1][3], target_transform[2][3]);
             console.log(this.gameobjects[i].transform.model_transform[0][3], this.gameobjects[i].transform.model_transform[1][3], this.gameobjects[i].transform.model_transform[2][3]);
+        }
+//1st/3rd person camera movement
+        if(typeof this.attached === "function"){
+            let desired=Mat4.identity();
+            if(this.attached()==3) //third person
+                desired=Mat4.translation(10, 0, -80).times(Mat4.rotation(Math.PI,0,1,0)); 
+            else if (this.attached()==1){ //first person
+                desired=bow_transform.times(Mat4.translation(5, 0, 15)).times(Mat4.rotation(Math.PI*0.5,0,1,0));
+
+            }
+            else{//free camera
+                this.cam = "Yes";
+            }   
+            if(this.attached()!="f"){
+                program_state.set_camera(desired.map((x,i) => Vector.from(program_state.camera_inverse[i]).mix(x, 0.1)));     
+                this.cam = "No";     
+            }   
         }
     }
 }
