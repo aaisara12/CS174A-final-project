@@ -53,51 +53,52 @@ const Bow = model_defs.Bow =
             defs.Capped_Cylinder.insert_transformed_copy_into(this, [5, 20, [[0, 5], [0, 20]]], string_transform);
         }
     }
-	
-class Drawn_Bow extends Shape {
-    constructor() {
-        super("position", "normal", "texture_coord");
-        // upper
-        let upper_bow_transform = Mat4.identity();
-        Sticks.insert_transformed_copy_into(this, [5], upper_bow_transform);
-        upper_bow_transform = upper_bow_transform.times(Mat4.rotation(Math.PI/5, 0, 0, 1))//
-            .times(Mat4.translation(3, 9, 0));
-        Sticks.insert_transformed_copy_into(this, [5], upper_bow_transform);
-        upper_bow_transform = upper_bow_transform.times(Mat4.rotation(Math.PI/5, 0, 0, 1))//
-            .times(Mat4.translation(3, 9, 0));
-        Sticks.insert_transformed_copy_into(this, [5], upper_bow_transform);
 
-        // lower
-        let lower_bow_transform = Mat4.identity();
-        Sticks.insert_transformed_copy_into(this, [5], lower_bow_transform);
-        lower_bow_transform = lower_bow_transform.times(Mat4.rotation(-Math.PI/5, 0, 0, 1))//
-            .times(Mat4.translation(3, -9, 0));
-        Sticks.insert_transformed_copy_into(this, [5], lower_bow_transform);
-        lower_bow_transform = lower_bow_transform.times(Mat4.rotation(-Math.PI/5, 0, 0, 1))//
-            .times(Mat4.translation(3, -9, 0));
-        Sticks.insert_transformed_copy_into(this, [5], lower_bow_transform);
+const Drawn_Bow = model_defs.Drawn_Bow =	
+    class Drawn_Bow extends Shape {
+        constructor() {
+            super("position", "normal", "texture_coord");
+            // upper
+            let upper_bow_transform = Mat4.identity();
+            Sticks.insert_transformed_copy_into(this, [5], upper_bow_transform);
+            upper_bow_transform = upper_bow_transform.times(Mat4.rotation(Math.PI/5, 0, 0, 1))//
+                .times(Mat4.translation(3, 9, 0));
+            Sticks.insert_transformed_copy_into(this, [5], upper_bow_transform);
+            upper_bow_transform = upper_bow_transform.times(Mat4.rotation(Math.PI/5, 0, 0, 1))//
+                .times(Mat4.translation(3, 9, 0));
+            Sticks.insert_transformed_copy_into(this, [5], upper_bow_transform);
 
-        // string
-        let string_transform = Mat4.identity();
-        string_transform = string_transform.times(Mat4.rotation(Math.PI/2, 1, 0, 0))
-            .times(Mat4.rotation(-Math.PI/4, 0, 1, 0))
-            .times(Mat4.scale(.1, .1, 45/2))
-            .times(Mat4.translation(-20 / 0.1, 0 / 0.1, 9.5 / (45/2)));
-        defs.Capped_Cylinder.insert_transformed_copy_into(this, [5, 20, [[0, 5], [0, 20]]], string_transform);
+            // lower
+            let lower_bow_transform = Mat4.identity();
+            Sticks.insert_transformed_copy_into(this, [5], lower_bow_transform);
+            lower_bow_transform = lower_bow_transform.times(Mat4.rotation(-Math.PI/5, 0, 0, 1))//
+                .times(Mat4.translation(3, -9, 0));
+            Sticks.insert_transformed_copy_into(this, [5], lower_bow_transform);
+            lower_bow_transform = lower_bow_transform.times(Mat4.rotation(-Math.PI/5, 0, 0, 1))//
+                .times(Mat4.translation(3, -9, 0));
+            Sticks.insert_transformed_copy_into(this, [5], lower_bow_transform);
 
-        let string2_transform = Mat4.identity();
-        string2_transform = string2_transform.times(Mat4.rotation(Math.PI/2, 1, 0, 0))
-            .times(Mat4.rotation(Math.PI/4, 0, 1, 0))
-            .times(Mat4.scale(.1, .1, 45/2))
-            .times(Mat4.translation(-20 / 0.1, 0 / 0.1, -9.5 / (45/2)));
-        defs.Capped_Cylinder.insert_transformed_copy_into(this, [5, 20, [[0, 5], [0, 20]]], string2_transform);
+            // string
+            let string_transform = Mat4.identity();
+            string_transform = string_transform.times(Mat4.rotation(Math.PI/2, 1, 0, 0))
+                .times(Mat4.rotation(-Math.PI/4, 0, 1, 0))
+                .times(Mat4.scale(.1, .1, 45/2))
+                .times(Mat4.translation(-20 / 0.1, 0 / 0.1, 9.5 / (45/2)));
+            defs.Capped_Cylinder.insert_transformed_copy_into(this, [5, 20, [[0, 5], [0, 20]]], string_transform);
 
-        //arrow 
-        let arrow_transform = Mat4.identity();
-        arrow_transform = arrow_transform.times(Mat4.translation(-15, 0, 0));
-        Arrow.insert_transformed_copy_into(this, [], arrow_transform);
+            let string2_transform = Mat4.identity();
+            string2_transform = string2_transform.times(Mat4.rotation(Math.PI/2, 1, 0, 0))
+                .times(Mat4.rotation(Math.PI/4, 0, 1, 0))
+                .times(Mat4.scale(.1, .1, 45/2))
+                .times(Mat4.translation(-20 / 0.1, 0 / 0.1, -9.5 / (45/2)));
+            defs.Capped_Cylinder.insert_transformed_copy_into(this, [5, 20, [[0, 5], [0, 20]]], string2_transform);
+
+            //arrow 
+            let arrow_transform = Mat4.identity();
+            arrow_transform = arrow_transform.times(Mat4.translation(-15, 0, 0));
+            Arrow.insert_transformed_copy_into(this, [], arrow_transform);
+        }
     }
-}
 
 // arrow object class
 const Arrow = model_defs.Arrow = 
@@ -137,15 +138,16 @@ const Arrow = model_defs.Arrow =
     }
 
 //board object class
-class Board extends Shape {
-    constructor() {
-        super("position", "normal", "texture_coord");
-        let board_transform = Mat4.identity();
-        board_transform = board_transform.times(Mat4.scale(2, 2, 0.1));
-        defs.Cube.insert_transformed_copy_into(this, [], board_transform);
-    }
+const Board = model_defs.Board =	
+    class Board extends Shape {
+        constructor() {
+            super("position", "normal", "texture_coord");
+            let board_transform = Mat4.identity();
+            board_transform = board_transform.times(Mat4.scale(2, 2, 0.1));
+            defs.Cube.insert_transformed_copy_into(this, [], board_transform);
+        }
 
-}
+    }
 
 //target object class
 const Target = model_defs.Target =
