@@ -7,7 +7,7 @@ import {GameObject} from './gameobject.js';
 import {components} from './component.js';
 
 const {
-    Vector, Vector3, vec, vec3, vec4, color, hex_color, Shader, Matrix, Mat4, Light, Shape, Material, Scene,
+    Vector, Vector3, vec, vec3, vec4, color, hex_color, Shader, Matrix, Mat4, Light, Shape, Material, Scene, Texture
 } = tiny;
 
 class Base_Scene extends Scene {
@@ -20,10 +20,14 @@ class Base_Scene extends Scene {
         this.hover = this.swarm = false;
 
         this.shapes = {
+            'sky': new defs.Subdivision_Sphere(4),
+            'ground': new defs.Cube(),
             'sun': new defs.Subdivision_Sphere(4), // declare shapes
             'bow': new model_defs.Bow(),
+			'drawn_bow': new model_defs.Drawn_Bow(),
             'arrow': new model_defs.Arrow(),
             'target': new model_defs.Target(),
+            'board': new model_defs.Board(),
         };
 
         // *** Materials
@@ -35,7 +39,19 @@ class Base_Scene extends Scene {
             bow: new Material(new defs.Phong_Shader(),
                 {ambient: .3, diffusivity: .8, color: hex_color('#fff8dc')}),
             target: new Material(new model_defs.Target_Shader(),
-                {ambient: .3, diffusivity: .8})
+                {ambient: .3, diffusivity: .8}),
+            board: new Material(new defs.Phong_Shader(),
+                {ambient: .3, diffusivity: .8, color: hex_color('#fff8dc')}),
+            sky_texture: new Material(new defs.Textured_Phong(), {
+                color: hex_color("#000000"),
+                ambient: 1, diffusivity: 0.1, specularity: 0.1,
+                texture: new Texture("assets/sky.png", "LINEAR_MIPMAP_LINEAR")
+            }),
+            ground: new Material(new defs.Textured_Phong(), {
+                color: hex_color("#000000"),
+                ambient: 1, diffusivity: 0.1, specularity: 0.1,
+                texture: new Texture("assets/grass.jpg", "LINEAR_MIPMAP_LINEAR")
+            }),
         };
         // The white material and basic shader are used for drawing the outline.
         this.white = new Material(new defs.Basic_Shader());
