@@ -1,7 +1,7 @@
 import {defs, tiny} from './examples/common.js';
 
 const {
-    Vector, Vector3, vec, vec3, vec4, color, hex_color, Shader, Matrix, Mat4, Light, Shape, Material, Scene,
+    Vector, Vector3, vec, vec3, vec4, color, hex_color, Shader, Matrix, Mat4, Light, Shape, Material, Scene, Texture
 } = tiny;
 
 class Base_Scene extends Scene {
@@ -15,6 +15,7 @@ class Base_Scene extends Scene {
 
         this.shapes = {
             'sky': new defs.Subdivision_Sphere(4),
+            'ground': new defs.Cube(),
             'sun': new defs.Subdivision_Sphere(4), // declare shapes
             'bow': new Bow(),
             'drawn_bow': new Drawn_Bow(),
@@ -35,6 +36,16 @@ class Base_Scene extends Scene {
                 {ambient: .3, diffusivity: .8}),
             board: new Material(new defs.Phong_Shader(),
                 {ambient: .3, diffusivity: .8, color: hex_color('#fff8dc')}),
+            sky_texture: new Material(new defs.Textured_Phong(), {
+                color: hex_color("#000000"),
+                ambient: 1, diffusivity: 0.1, specularity: 0.1,
+                texture: new Texture("assets/sky.png", "LINEAR_MIPMAP_LINEAR")
+            }),
+            ground: new Material(new defs.Textured_Phong(), {
+                color: hex_color("#000000"),
+                ambient: 1, diffusivity: 0.1, specularity: 0.1,
+                texture: new Texture("assets/grass.jpg", "LINEAR_MIPMAP_LINEAR")
+            }),
         };
         // The white material and basic shader are used for drawing the outline.
         this.white = new Material(new defs.Basic_Shader());
@@ -78,8 +89,15 @@ export class FinalProject extends Base_Scene {
 
         // sky
         let sky_transform = Mat4.identity();
-        sky_transform = sky_transform.times(Mat4.scale(200, 200, 200));
-        this.shapes.sky.draw(context, program_state, sky_transform, this.materials.bow);
+        sky_transform = sky_transform.times(Mat4.scale(100, 100, 100));
+        this.shapes.sky.draw(context, program_state, sky_transform, this.materials.sky_texture);
+
+        // ground
+        let ground_transform = Mat4.identity();
+        ground_transform = ground_transform.times(Mat4.scale(100, 1, 100))
+            .times(Mat4.translation(0, -20, 0));
+        this.shapes.ground.draw(context, program_state, ground_transform, this.materials.ground);
+
         // sun
         let sun_transform = Mat4.identity();
         let a = 3;
