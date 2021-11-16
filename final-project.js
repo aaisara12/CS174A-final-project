@@ -163,8 +163,11 @@ const Controls = defs.Movement_Controls =
             this.key_triggered_button("Down", ["s"], () => this.thrust[1] = 1,  "#77d777", () => this.thrust[1] = 0);
             this.key_triggered_button("Right", ["d"], () => this.thrust[0] = -1,  "#77d777", () => this.thrust[0] = 0);
             this.new_line();
+            this.key_triggered_button("Back", ["q"], () => this.thrust[2] = -1, "#77d777", () => this.thrust[2] = 0);
+             this.key_triggered_button("Forward", ["e"], () => this.thrust[2] = 1, "#77d777", () => this.thrust[2] = 0);
             this.new_line();
-            const speed_controls = this.control_panel.appendChild(document.createElement("span"));
+            this.new_line();
+            /*const speed_controls = this.control_panel.appendChild(document.createElement("span"));
             //speed_controls.style.margin = "30px";
             this.key_triggered_button("-", ["z"], () =>
                 this.speed_multiplier /= 1.2, "#add8e6", undefined, undefined, speed_controls);
@@ -178,7 +181,7 @@ const Controls = defs.Movement_Controls =
             speed_controls2.style.margin = "5px";
             this.key_triggered_button("Reset Arrow Power:", [" "], () => {
                 this.speed_multiplier = 1;
-            }, "#ff7f7f");
+            }, "#ff7f7f");*/
             //this.key_triggered_button("Roll left", [","], () => this.roll = 1, undefined, () => this.roll = 0);
             //this.key_triggered_button("Roll right", ["."], () => this.roll = -1, undefined, () => this.roll = 0);
             this.new_line();
@@ -208,15 +211,10 @@ const Controls = defs.Movement_Controls =
                 this.matrix().set(Mat4.inverse(this.inverse()));
             }, "#8B8885");
             this.new_line();*/
-            this.key_triggered_button("SHOOT!", ["Enter"],
-                () => {
-                    
-                }, "#ff0000");
-            this.new_line();
-            this.key_triggered_button("Attach to global camera", ["Shift", "R"],
+            /*this.key_triggered_button("Attach to global camera", ["Shift", "R"],
                 () => {
                     this.will_take_over_graphics_state = true
-                }, "#8B8885");
+                }, "#8B8885");*/
             this.new_line();
         }
 
@@ -335,6 +333,8 @@ export class FinalProject extends Base_Scene {
          Mat4.identity().times(Mat4.translation(0,0,-10)),[new components.OutsideRight()], this.materials.arrow));
         this.key_triggered_button("Spawn Arrow Edge Right", ["h"], () => this.spawn_gameObject(this.shapes.arrow,
          Mat4.identity().times(Mat4.translation(0,0,-10)),[new components.EdgeRight()], this.materials.arrow));
+        this.new_line();
+        this.new_line();
     	this.key_triggered_button("Lock First Person", ["t"], () => this.attached = () => 1);
         this.key_triggered_button("Lock Third Person", ["y"], () => this.attached = () => 3);
         this.new_line();
@@ -348,6 +348,10 @@ export class FinalProject extends Base_Scene {
                 box.textContent = "Arrow Power: " + this.pow_multiplier.toFixed(2)
             }, pow_controls);
                 this.new_line();
+        this.key_triggered_button("SHOOT!", ["Enter"],
+                () => {
+                    
+                }, "#ff0000");
     }
 
     
