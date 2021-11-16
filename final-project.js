@@ -302,7 +302,9 @@ export class FinalProject extends Base_Scene {
     // Make a special function that spawns in a GameObject into the scene (instantiates a GameObject using a "prefab")
     spawn_gameObject(model, start_transform, components, material)
     {
-        this.gameobjects.push(new GameObject(model, start_transform, components, material));
+        let spawnedGO = new GameObject(model, start_transform, components, material);
+        this.gameobjects.push(spawnedGO);
+        return spawnedGO;
     }
     powerAdj() {
         if(this.inc)
@@ -320,6 +322,17 @@ export class FinalProject extends Base_Scene {
             this.inc = 0;
         }
     }
+    
+    // FOR TESTING PURPOSES, REMOVE LATER
+    spawnChildArrow()
+    {
+        let parent = this.spawn_gameObject(this.shapes.arrow, Mat4.identity().times(Mat4.translation(0, 0, -10)), 
+                                        [new components.Outside()], this.materials.arrow);
+        let child = this.spawn_gameObject(this.shapes.arrow, Mat4.identity().times(Mat4.translation(0, -2, -10)), 
+                                        [new components.ForwardDown()], this.materials.arrow);
+        parent.transform.addChild(child.transform);
+    }
+
     make_control_panel() {
         // Draw the scene's buttons, setup their actions and keyboard shortcuts, and monitor live measurements.
         this.key_triggered_button("Change Colors", ["c"], this.set_colors);
@@ -333,6 +346,10 @@ export class FinalProject extends Base_Scene {
          Mat4.identity().times(Mat4.translation(0,0,-10)),[new components.OutsideRight()], this.materials.arrow));
         this.key_triggered_button("Spawn Arrow Edge Right", ["h"], () => this.spawn_gameObject(this.shapes.arrow,
          Mat4.identity().times(Mat4.translation(0,0,-10)),[new components.EdgeRight()], this.materials.arrow));
+        
+        this.key_triggered_button("Spawn child arrow", ["n"], () => this.spawnChildArrow());
+
+
         this.new_line();
         this.new_line();
     	this.key_triggered_button("Lock First Person", ["t"], () => this.attached = () => 1);
@@ -383,9 +400,6 @@ export class FinalProject extends Base_Scene {
         let arrow_transform = Mat4.identity();
         arrow_transform = arrow_transform.times(Mat4.translation(t, 0, -10));
       
-        // arrow 
-        // I commented this out for cleanliness - Ryan  
-        // this.shapes.arrow.draw(context, program_state, arrow_transform, this.materials.arrow);
 
         // target
         let target_transform = Mat4.identity();
@@ -409,8 +423,8 @@ export class FinalProject extends Base_Scene {
                 this.gameobjects[i].update(t, dt);
             }
             this.gameobjects[i].draw(context, program_state);
-            console.log(target_transform[0][3], target_transform[1][3], target_transform[2][3]);
-            console.log(this.gameobjects[i].transform.model_transform[0][3], this.gameobjects[i].transform.model_transform[1][3], this.gameobjects[i].transform.model_transform[2][3]);
+//             console.log(target_transform[0][3], target_transform[1][3], target_transform[2][3]);
+//             console.log(this.gameobjects[i].transform.model_transform[0][3], this.gameobjects[i].transform.model_transform[1][3], this.gameobjects[i].transform.model_transform[2][3]);
         }
 //1st/3rd person camera movement
         if(typeof this.attached === "function"){

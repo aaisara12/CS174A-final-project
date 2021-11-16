@@ -82,3 +82,11 @@ const EdgeRight = components.EdgeRight =
             this.gameObject.transform.translate(18 * deltaTime, 0, 10* deltaTime);
         }
     }
+
+const ArcherAim = components.ArcherAim = 
+    class ArcherAim extends Component{
+        update(time, deltaTime)
+        {
+            
+        }
+    }

@@ -45,12 +45,59 @@ class Transform
     constructor(start_transform)
     {
         this.model_transform = start_transform;
+        this.local_transform = start_transform; 
+
+        this.children = [];
+        this.parent;
     }
+
+    addChild(childTransform)
+    {
+        this.children.push(childTransform);
+        childTransform.parent = this;
+
+        // Update the local transform so that it is now relative to its new parent
+        childTransform.local_transform = Mat4.inverse(this.model_transform).times(childTransform.local_transform);
+    }
+
+    
     
     // Translate the transform relative to the world coordinate system (not relative to its parent)
     translate(dx, dy, dz)
     {
-        this.model_transform = Mat4.translation(dx, dy, dz).times(this.model_transform);
+        let local_translation = this.model_transform.times(vec4(dx, dy, dz, 0));
+
+        this.transformLocal((Mat4.translation(local_translation[0], local_translation[1], local_translation[2])));
+        
+    }
+
+
+    
+    ///////////////////
+    // HELPER METHODS
+    ///////////////////
+    
+    // Method to ensure that model_transform is updated when local_transform is changed
+    transformLocal(appliedMatrix)
+    {
+        this.local_transform = this.local_transform.times(appliedMatrix);
+        this.refreshModelMatrix();
+    }
+    
+    // Recalculate the world space transform matrix
+    // This needs to be done whenever we update the local transform matrix (since model_transform is not being updated)
+    refreshModelMatrix()
+    {
+        if(this.parent == null)
+            this.model_transform = this.local_transform;
+        else
+            this.model_transform = this.parent.model_transform.times(this.local_transform);
+
+        for(let i = 0; i < this.children.length; i++)
+        {
+            // Whenever we update the model matrix of a transform, we should update the model matrices of its children
+            this.children[i].refreshModelMatrix();
+        }
     }
 }
 
