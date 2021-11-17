@@ -83,10 +83,3 @@ const EdgeRight = components.EdgeRight =
         }
     }
 
-const ArcherAim = components.ArcherAim = 
-    class ArcherAim extends Component{
-        update(time, deltaTime)
-        {
-            
-        }
-    }

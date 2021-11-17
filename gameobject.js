@@ -65,10 +65,17 @@ class Transform
     // Translate the transform relative to the world coordinate system (not relative to its parent)
     translate(dx, dy, dz)
     {
-        let local_translation = this.model_transform.times(vec4(dx, dy, dz, 0));
+        let local_translation = (this.parent != null)? this.parent.model_transform.times(vec4(dx, dy, dz, 0)) : vec4(dx, dy, dz, 0);
 
         this.transformLocal((Mat4.translation(local_translation[0], local_translation[1], local_translation[2])));
         
+    }
+
+    rotateLocal(dx, dy, dz)
+    {
+        let local_rotation = Mat4.rotation(dx, 1, 0, 0).times(Mat4.rotation(dy, 0, 1, 0)).times(Mat4.rotation(dz, 0, 0, 1));
+
+        this.transformLocal(local_rotation);
     }
 
 

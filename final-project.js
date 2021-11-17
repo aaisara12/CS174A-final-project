@@ -52,6 +52,8 @@ class Base_Scene extends Scene {
                 ambient: 1, diffusivity: 0.1, specularity: 0.1,
                 texture: new Texture("assets/grass.jpg", "LINEAR_MIPMAP_LINEAR")
             }),
+            archer: new Material(new defs.Phong_Shader(),
+                {ambient: 1.0, diffusivity: .8, color: hex_color("#f7b96d")}),
         };
         // The white material and basic shader are used for drawing the outline.
         this.white = new Material(new defs.Basic_Shader());
@@ -297,6 +299,10 @@ export class FinalProject extends Base_Scene {
         this.gameobjects = [];                               // List of GameObjects in scene       
         this.pow_multiplier = 1;
         this.inc = 1;
+
+        this.bow;
+        this.hand;
+        this.person;
     }
 
     // Make a special function that spawns in a GameObject into the scene (instantiates a GameObject using a "prefab")
@@ -323,14 +329,16 @@ export class FinalProject extends Base_Scene {
         }
     }
     
-    // FOR TESTING PURPOSES, REMOVE LATER
-    spawnChildArrow()
+    
+    // Spawn in the archer's joints
+    initializeArcher()
     {
-        let parent = this.spawn_gameObject(this.shapes.arrow, Mat4.identity().times(Mat4.translation(0, 0, -10)), 
-                                        [new components.Outside()], this.materials.arrow);
-        let child = this.spawn_gameObject(this.shapes.arrow, Mat4.identity().times(Mat4.translation(0, -2, -10)), 
-                                        [new components.ForwardDown()], this.materials.arrow);
-        parent.transform.addChild(child.transform);
+        this.person = this.spawn_gameObject(this.shapes.sun, Mat4.translation(0, 0, -10), [], this.materials.archer);
+        this.hand = this.spawn_gameObject(this.shapes.sun, Mat4.translation(0, 0, -10), [], this.materials.archer);
+        this.bow = this.spawn_gameObject(this.shapes.bow, Mat4.translation(12, 0, -10), [], this.materials.bow);
+
+        this.person.transform.addChild(this.hand.transform);
+        this.hand.transform.addChild(this.bow.transform);
     }
 
     make_control_panel() {
@@ -347,7 +355,10 @@ export class FinalProject extends Base_Scene {
         this.key_triggered_button("Spawn Arrow Edge Right", ["h"], () => this.spawn_gameObject(this.shapes.arrow,
          Mat4.identity().times(Mat4.translation(0,0,-10)),[new components.EdgeRight()], this.materials.arrow));
         
-        this.key_triggered_button("Spawn child arrow", ["n"], () => this.spawnChildArrow());
+        this.key_triggered_button("Aim Left", ["j"], () => this.person.transform.rotateLocal(0, Math.PI/30, 0));
+        this.key_triggered_button("Aim Up", ["i"], () => this.hand.transform.rotateLocal(0, 0, Math.PI/30));
+        this.key_triggered_button("Aim Down", ["k"], () => this.hand.transform.rotateLocal(0, 0, -Math.PI/30));
+        this.key_triggered_button("Aim Right", ["l"], () => this.person.transform.rotateLocal(0, -Math.PI/30, 0));
 
 
         this.new_line();
@@ -377,6 +388,9 @@ export class FinalProject extends Base_Scene {
         
         const t = program_state.animation_time / 1000, dt = program_state.animation_delta_time / 1000;
 
+        if(this.bow == null)
+            this.initializeArcher();
+
         // sun
         let sun_transform = Mat4.identity();
         let a = 3;
@@ -389,12 +403,6 @@ export class FinalProject extends Base_Scene {
         program_state.lights =  [new Light(vec4(0, 0, 0, 1), color(1, color_gradient, color_gradient, 1), 10 ** sun_radius)];
         let sun_material = this.materials.sun;
         sun_material = sun_material.override({color:sun_color});
-        //this.shapes.sun.draw(context, program_state, sun_transform, sun_material);
-
-        // bow
-        let bow_transform = Mat4.identity();
-        bow_transform = bow_transform.times(Mat4.translation(5, 0, -10));
-        this.shapes.bow.draw(context, program_state, bow_transform, this.materials.bow);
 
         // move
         let arrow_transform = Mat4.identity();
@@ -423,8 +431,7 @@ export class FinalProject extends Base_Scene {
                 this.gameobjects[i].update(t, dt);
             }
             this.gameobjects[i].draw(context, program_state);
-//             console.log(target_transform[0][3], target_transform[1][3], target_transform[2][3]);
-//             console.log(this.gameobjects[i].transform.model_transform[0][3], this.gameobjects[i].transform.model_transform[1][3], this.gameobjects[i].transform.model_transform[2][3]);
+
         }
 //1st/3rd person camera movement
         if(typeof this.attached === "function"){
