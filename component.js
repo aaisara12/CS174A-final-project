@@ -48,10 +48,10 @@ const StayStill = components.StayStill =
         }
     }
 
-const ForwardDown = components.ForwardDown = 
-    class ForwardDown extends Component{
+const Straight = components.Straight = 
+    class Straight extends Component{
         update(time, deltaTime){
-            this.gameObject.transform.translate(10*deltaTime, -.5*deltaTime, 0);
+            this.gameObject.transform.translate(10*deltaTime, 0, 0);
         }
     }
 
@@ -80,5 +80,12 @@ const EdgeRight = components.EdgeRight =
     class EdgeRight extends Component{
         update(time, deltaTime){
             this.gameObject.transform.translate(18 * deltaTime, 0, 10* deltaTime);
+        }
+    }
+
+const TopRight = components.TopRight =
+    class TopRight extends Component{
+        update(time, deltaTime){
+            this.gameObject.transform.translate(20 * deltaTime, 10*deltaTime, 10* deltaTime);
         }
     }

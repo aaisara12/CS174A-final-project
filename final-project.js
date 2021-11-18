@@ -323,16 +323,20 @@ export class FinalProject extends Base_Scene {
     make_control_panel() {
         // Draw the scene's buttons, setup their actions and keyboard shortcuts, and monitor live measurements.
         this.key_triggered_button("Change Colors", ["c"], this.set_colors);
-        this.key_triggered_button("Spawn Arrow", ["v"], () => this.spawn_gameObject(this.shapes.arrow,
-         Mat4.identity().times(Mat4.translation(0,0,-10)),[new components.ForwardDown()], this.materials.arrow));
-        this.key_triggered_button("Spawn Arrow Edge Top", ["x"], () => this.spawn_gameObject(this.shapes.arrow,
+        this.key_triggered_button("Spawn Arrow", ["1"], () => this.spawn_gameObject(this.shapes.arrow,
+         Mat4.identity().times(Mat4.translation(0,0,-10)),[new components.Straight()], this.materials.arrow));
+        this.key_triggered_button("Spawn Arrow Edge Top", ["2"], () => this.spawn_gameObject(this.shapes.arrow,
          Mat4.identity().times(Mat4.translation(0,0,-10)),[new components.InsideTop()], this.materials.arrow));
-        this.key_triggered_button("Spawn Arrow Outside Top", ["z"], () => this.spawn_gameObject(this.shapes.arrow,
+        this.key_triggered_button("Spawn Arrow Outside Top", ["3"], () => this.spawn_gameObject(this.shapes.arrow,
          Mat4.identity().times(Mat4.translation(0,0,-10)),[new components.Outside()], this.materials.arrow));
-        this.key_triggered_button("Spawn Arrow Outside Right", ["g"], () => this.spawn_gameObject(this.shapes.arrow,
+        this.key_triggered_button("Spawn Arrow Outside Right", ["4"], () => this.spawn_gameObject(this.shapes.arrow,
          Mat4.identity().times(Mat4.translation(0,0,-10)),[new components.OutsideRight()], this.materials.arrow));
-        this.key_triggered_button("Spawn Arrow Edge Right", ["h"], () => this.spawn_gameObject(this.shapes.arrow,
+        this.key_triggered_button("Spawn Arrow Edge Right", ["5"], () => this.spawn_gameObject(this.shapes.arrow,
          Mat4.identity().times(Mat4.translation(0,0,-10)),[new components.EdgeRight()], this.materials.arrow));
+        this.key_triggered_button("Spawn Arrow Top Right", ["6"], () => this.spawn_gameObject(this.shapes.arrow,
+         Mat4.identity().times(Mat4.translation(0,0,-10)),[new components.TopRight()], this.materials.arrow));
+        
+
         this.new_line();
         this.new_line();
     	this.key_triggered_button("Lock First Person", ["t"], () => this.attached = () => 1);
@@ -354,6 +358,21 @@ export class FinalProject extends Base_Scene {
                 }, "#ff0000");
     }
 
+    calcDist(a, b){
+        return Math.sqrt(Math.pow(a[1][3] - b[1][3], 2) + Math.pow(a[2][3] - b[2][3], 2));
+    }
+
+    updateGameObject(a, targ, t, dt){
+        
+        if(a.transform.model_transform[0][3] > targ[0][3] - 15 && this.calcDist(a.transform.model_transform, targ) < 20){
+            a.update(0,0);
+        }
+        else{
+            a.update(t, dt);
+        }
+//         this.gameobjects[i].draw(context, program_state);
+
+    }
     
     display(context, program_state) {
         super.display(context, program_state);
@@ -398,19 +417,25 @@ export class FinalProject extends Base_Scene {
         for(let i = 0; i < this.gameobjects.length; i++)
         {
             
-            if(this.gameobjects[i].transform.model_transform[0][3] > target_transform[0][3] - 15 && 
-            this.gameobjects[i].transform.model_transform[1][3] > target_transform[1][3] - 20 &&
-            this.gameobjects[i].transform.model_transform[1][3] < target_transform[1][3] + 20 && 
-            this.gameobjects[i].transform.model_transform[2][3] > target_transform[2][3] - 20 &&
-            this.gameobjects[i].transform.model_transform[2][3] < target_transform[2][3] + 20){
-                this.gameobjects[i].update(0,0);
-            }
-            else{
-                this.gameobjects[i].update(t, dt);
-            }
+//             if(this.gameobjects[i].transform.model_transform[0][3] > target_transform[0][3] - 15 && 
+//             this.gameobjects[i].transform.model_transform[1][3] > target_transform[1][3] - 20 &&
+//             this.gameobjects[i].transform.model_transform[1][3] < target_transform[1][3] + 20 && 
+//             this.gameobjects[i].transform.model_transform[2][3] > target_transform[2][3] - 20 &&
+//             this.gameobjects[i].transform.model_transform[2][3] < target_transform[2][3] + 20){
+//                 this.gameobjects[i].update(0,0);
+//             }
+//             else{
+//                 this.gameobjects[i].update(t, dt);
+//             }
+            
+            this.updateGameObject(this.gameobjects[i], target_transform, t, dt);
+            
             this.gameobjects[i].draw(context, program_state);
-            console.log(target_transform[0][3], target_transform[1][3], target_transform[2][3]);
-            console.log(this.gameobjects[i].transform.model_transform[0][3], this.gameobjects[i].transform.model_transform[1][3], this.gameobjects[i].transform.model_transform[2][3]);
+
+               
+            // console.log(target_transform[0][3], target_transform[1][3], target_transform[2][3]);
+            // console.log(this.calcDist(this.gameobjects[i].transform.model_transform, target_transform));
+            // console.log(this.gameobjects[i].transform.model_transform[0][3], this.gameobjects[i].transform.model_transform[1][3], this.gameobjects[i].transform.model_transform[2][3]);
         }
 //1st/3rd person camera movement
         if(typeof this.attached === "function"){
