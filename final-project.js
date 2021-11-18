@@ -370,8 +370,6 @@ export class FinalProject extends Base_Scene {
         else{
             a.update(t, dt);
         }
-//         this.gameobjects[i].draw(context, program_state);
-
     }
     
     display(context, program_state) {
@@ -416,17 +414,6 @@ export class FinalProject extends Base_Scene {
         // Update each GameObject in the scene then draw it
         for(let i = 0; i < this.gameobjects.length; i++)
         {
-            
-//             if(this.gameobjects[i].transform.model_transform[0][3] > target_transform[0][3] - 15 && 
-//             this.gameobjects[i].transform.model_transform[1][3] > target_transform[1][3] - 20 &&
-//             this.gameobjects[i].transform.model_transform[1][3] < target_transform[1][3] + 20 && 
-//             this.gameobjects[i].transform.model_transform[2][3] > target_transform[2][3] - 20 &&
-//             this.gameobjects[i].transform.model_transform[2][3] < target_transform[2][3] + 20){
-//                 this.gameobjects[i].update(0,0);
-//             }
-//             else{
-//                 this.gameobjects[i].update(t, dt);
-//             }
             
             this.updateGameObject(this.gameobjects[i], target_transform, t, dt);
             
