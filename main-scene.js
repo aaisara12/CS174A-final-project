@@ -14,7 +14,6 @@ const {
 //                      (On the web, a server should instead just pack all these as well
 //                      as common.js into one file for you, such as "dependencies.js")
 
-const Minimal_Webgl_Demo = defs.Minimal_Webgl_Demo;
 
 Object.assign(defs, {FinalProject});
 
