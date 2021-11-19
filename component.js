@@ -20,15 +20,6 @@ class Component
 // COMPONENTS
 ///////////////
 
-const TestMovement = components.TestMovement =
-    class TestMovement extends Component
-    {
-        update(time, deltaTime)
-        {
-            this.gameObject.transform.translate(-deltaTime, deltaTime, 0);
-        }
-    }
-
 const FallDown = components.FallDown =
     class FallDown extends Component
     {
@@ -87,5 +78,29 @@ const TopRight = components.TopRight =
     class TopRight extends Component{
         update(time, deltaTime){
             this.gameObject.transform.translate(20 * deltaTime, 10*deltaTime, 10* deltaTime);
+        }
+    }
+
+const GravityTest = components.GravityTest =
+    class GravityTest extends Component{
+        update(time, deltaTime){
+            if(time != 0 && deltaTime != 0){
+                this.gameObject.dy += .005;
+                // pass in power variable from user input, this is just arbitrary rn
+                var POWER = .6;
+                this.gameObject.transform.translate(POWER, -this.gameObject.dy , 0);
+            }
+        }
+    }
+
+const GravityTest2 = components.GravityTest2 =
+    class GravityTest2 extends Component{
+        update(time, deltaTime){
+            if(time != 0 && deltaTime != 0){
+                this.gameObject.dy += .005;
+                // pass in power variable from user input, this is just arbitrary rn
+                var POWER = .6;
+                this.gameObject.transform.translate(POWER, -this.gameObject.dy , .1);
+            }
         }
     }

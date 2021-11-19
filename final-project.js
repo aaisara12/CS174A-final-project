@@ -322,7 +322,6 @@ export class FinalProject extends Base_Scene {
     }
     make_control_panel() {
         // Draw the scene's buttons, setup their actions and keyboard shortcuts, and monitor live measurements.
-        this.key_triggered_button("Change Colors", ["c"], this.set_colors);
         this.key_triggered_button("Spawn Arrow", ["1"], () => this.spawn_gameObject(this.shapes.arrow,
          Mat4.identity().times(Mat4.translation(0,0,-10)),[new components.Straight()], this.materials.arrow));
         this.key_triggered_button("Spawn Arrow Edge Top", ["2"], () => this.spawn_gameObject(this.shapes.arrow,
@@ -335,7 +334,10 @@ export class FinalProject extends Base_Scene {
          Mat4.identity().times(Mat4.translation(0,0,-10)),[new components.EdgeRight()], this.materials.arrow));
         this.key_triggered_button("Spawn Arrow Top Right", ["6"], () => this.spawn_gameObject(this.shapes.arrow,
          Mat4.identity().times(Mat4.translation(0,0,-10)),[new components.TopRight()], this.materials.arrow));
-        
+        this.key_triggered_button("Spawn Arrow Gravity Test", ["7"], () => this.spawn_gameObject(this.shapes.arrow,
+         Mat4.identity().times(Mat4.translation(0,0,-10)),[new components.GravityTest()], this.materials.arrow));
+        this.key_triggered_button("Spawn Arrow Gravity Test", ["8"], () => this.spawn_gameObject(this.shapes.arrow,
+         Mat4.identity().times(Mat4.translation(0,0,-10)),[new components.GravityTest2()], this.materials.arrow));
 
         this.new_line();
         this.new_line();
@@ -419,7 +421,7 @@ export class FinalProject extends Base_Scene {
             
             this.gameobjects[i].draw(context, program_state);
 
-               
+            // console.log(t, dt);
             // console.log(target_transform[0][3], target_transform[1][3], target_transform[2][3]);
             // console.log(this.calcDist(this.gameobjects[i].transform.model_transform, target_transform));
             // console.log(this.gameobjects[i].transform.model_transform[0][3], this.gameobjects[i].transform.model_transform[1][3], this.gameobjects[i].transform.model_transform[2][3]);
