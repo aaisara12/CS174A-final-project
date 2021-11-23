@@ -30,6 +30,7 @@ class Base_Scene extends Scene {
             'board': new model_defs.Board(),
             'cube': new defs.Cube(),
             'outline':new model_defs.Cube_Outline(),
+            'square': new defs.Square(),
         };
 
         // *** Materials
@@ -62,6 +63,12 @@ class Base_Scene extends Scene {
                 {ambient: .3, diffusivity: .8, specularity: 1.0, color: hex_color('#ff0000')}),
             plastic: new Material(new defs.Phong_Shader(),
                 {ambient: .4, diffusivity: .6, specularity: 1.0, color: hex_color("#ffffff")}),
+            score1: new Material(new defs.Textured_Phong(), {
+                color: hex_color("#000000"),
+                ambient: 1, diffusivity: 0.1, specularity: 0.1,
+                texture: new Texture("assets/1.png","NEAREST")
+            }),
+            
         };
         // The white material and basic shader are used for drawing the outline.
         this.white = new Material(new defs.Basic_Shader());
@@ -426,16 +433,26 @@ export class FinalProject extends Base_Scene {
         let bar_transform = Mat4.identity();
         let sc = this.pow_multiplier/10-0.1
         bar_transform = bar_transform.times(Mat4.translation(10,0,-5)).times(Mat4.scale(1,sc,1));
+        let bar_transform2 = Mat4.inverse(program_state.camera_inverse)
+        let ui_t = Mat4.translation(-20,0,-30)
+        bar_transform2 = bar_transform2.times(ui_t).times(Mat4.scale(1,sc,1));
         if (sc>8)
-            this.shapes.cube.draw(context, program_state, bar_transform, this.materials.bar_r);
+            this.shapes.cube.draw(context, program_state, bar_transform2, this.materials.bar_r);
         else if (sc>5)
-            this.shapes.cube.draw(context, program_state, bar_transform, this.materials.bar_y);
+            this.shapes.cube.draw(context, program_state, bar_transform2, this.materials.bar_y);
         else
-            this.shapes.cube.draw(context, program_state, bar_transform, this.materials.bar_g);
+            this.shapes.cube.draw(context, program_state, bar_transform2, this.materials.bar_g);
         
         //bar outline
         let out_transform = Mat4.identity().times(Mat4.translation(10,0,-5)).times(Mat4.scale(1,10,1));
-        this.shapes.outline.draw(context, program_state,out_transform,this.white,"LINES");
+        let out_transform2 = Mat4.inverse(program_state.camera_inverse).times(ui_t).times(Mat4.scale(1,10,1));
+        this.shapes.outline.draw(context, program_state,out_transform2,this.white,"LINES");
+        
+
+        //UI score
+        let score_transform = Mat4.identity().times(Mat4.translation(15,0,12)).times(Mat4.scale(3,3,3));
+        let score_transform2 = Mat4.inverse(program_state.camera_inverse).times(Mat4.translation(14,-8,-30)).times(Mat4.rotation(t, 0, 1, 0)).times(Mat4.rotation(0.2*Math.PI, 0, 1, 0));
+        this.shapes.cube.draw(context, program_state, score_transform2, this.materials.score1);
 
         // Update each GameObject in the scene then draw it
         for(let i = 0; i < this.gameobjects.length; i++)
