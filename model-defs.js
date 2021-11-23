@@ -149,6 +149,49 @@ const Board = model_defs.Board =
 
     }
 
+//ouline object class
+const Cube_Outline = model_defs.Cube_Outline =
+    class Cube_Outline extends Shape {
+        constructor() {
+            super("position", "color");
+            //  TODO (Requirement 5).
+            // When a set of lines is used in graphics, you should think of the list entries as
+            // broken down into pairs; each pair of vertices will be drawn as a line segment.
+            // Note: since the outline is rendered with Basic_shader, you need to redefine the position and color of each vertex
+            this.arrays.position = Vector3.cast(
+                [-1, 1, 1], [-1, 1, -1], 
+                [-1, 1, -1], [1, 1, -1], 
+                [1, 1, -1], [1, 1, 1], 
+                [1, 1, 1], [-1, 1, 1],
+                [-1, -1, -1], [1, -1, -1], 
+                [1, -1, -1], [1, -1, 1], 
+                [1, -1, 1], [-1, -1, 1], 
+                [-1, -1, 1], [-1, -1, -1],                        
+                [-1, 1, -1], [-1, -1, -1], 
+                [-1, 1, 1], [-1, -1, 1], 
+                [1, 1, 1], [1, -1, 1], 
+                [1, 1, -1], [1, -1, -1]
+                );
+            this.arrays.color = [
+                vec4(1, 1, 1, 1), vec4(1, 1, 1, 1),
+                vec4(1, 1, 1, 1), vec4(1, 1, 1, 1),
+                vec4(1, 1, 1, 1), vec4(1, 1, 1, 1),
+                vec4(1, 1, 1, 1), vec4(1, 1, 1, 1),
+                vec4(1, 1, 1, 1), vec4(1, 1, 1, 1),
+                vec4(1, 1, 1, 1), vec4(1, 1, 1, 1),
+                vec4(1, 1, 1, 1), vec4(1, 1, 1, 1),
+                vec4(1, 1, 1, 1), vec4(1, 1, 1, 1),
+                vec4(1, 1, 1, 1), vec4(1, 1, 1, 1),
+                vec4(1, 1, 1, 1), vec4(1, 1, 1, 1),
+                vec4(1, 1, 1, 1), vec4(1, 1, 1, 1),
+                vec4(1, 1, 1, 1), vec4(1, 1, 1, 1),
+                vec4(1, 1, 1, 1), vec4(1, 1, 1, 1),
+                vec4(1, 1, 1, 1), vec4(1, 1, 1, 1),
+                vec4(1, 1, 1, 1), vec4(1, 1, 1, 1),
+            ];
+            this.indices = false;
+        }
+    }
 //target object class
 const Target = model_defs.Target =
     class Target extends Shape {
