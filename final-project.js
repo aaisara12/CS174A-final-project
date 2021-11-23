@@ -55,13 +55,13 @@ class Base_Scene extends Scene {
                 texture: new Texture("assets/grass.jpg", "LINEAR_MIPMAP_LINEAR")
             }),
             bar_g: new Material(new defs.Phong_Shader(),
-                {ambient: .3, diffusivity: .8, color: hex_color('#00ff00')}),
+                {ambient: .3, diffusivity: .8, specularity: 1.0, color: hex_color('#00ff00')}),
             bar_y: new Material(new defs.Phong_Shader(),
-                {ambient: .3, diffusivity: .8, color: hex_color('#ffff00')}),
+                {ambient: .3, diffusivity: .8, specularity: 1.0, color: hex_color('#ffff00')}),
             bar_r: new Material(new defs.Phong_Shader(),
-                {ambient: .3, diffusivity: .8, color: hex_color('#ff0000')}),
+                {ambient: .3, diffusivity: .8, specularity: 1.0, color: hex_color('#ff0000')}),
             plastic: new Material(new defs.Phong_Shader(),
-                {ambient: .4, diffusivity: .6, color: hex_color("#ffffff")}),
+                {ambient: .4, diffusivity: .6, specularity: 1.0, color: hex_color("#ffffff")}),
         };
         // The white material and basic shader are used for drawing the outline.
         this.white = new Material(new defs.Basic_Shader());
