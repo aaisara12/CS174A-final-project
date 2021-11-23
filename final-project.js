@@ -28,6 +28,8 @@ class Base_Scene extends Scene {
             'arrow': new model_defs.Arrow(),
             'target': new model_defs.Target(),
             'board': new model_defs.Board(),
+            'cube': new defs.Cube(),
+            'outline':new model_defs.Cube_Outline(),
         };
 
         // *** Materials
@@ -52,6 +54,14 @@ class Base_Scene extends Scene {
                 ambient: 1, diffusivity: 0.1, specularity: 0.1,
                 texture: new Texture("assets/grass.jpg", "LINEAR_MIPMAP_LINEAR")
             }),
+            bar_g: new Material(new defs.Phong_Shader(),
+                {ambient: .3, diffusivity: .8, color: hex_color('#00ff00')}),
+            bar_y: new Material(new defs.Phong_Shader(),
+                {ambient: .3, diffusivity: .8, color: hex_color('#ffff00')}),
+            bar_r: new Material(new defs.Phong_Shader(),
+                {ambient: .3, diffusivity: .8, color: hex_color('#ff0000')}),
+            plastic: new Material(new defs.Phong_Shader(),
+                {ambient: .4, diffusivity: .6, color: hex_color("#ffffff")}),
         };
         // The white material and basic shader are used for drawing the outline.
         this.white = new Material(new defs.Basic_Shader());
@@ -349,7 +359,7 @@ export class FinalProject extends Base_Scene {
         this.new_line();
         const pow_controls = this.control_panel.appendChild(document.createElement("span"));
             //speed_controls.style.margin = "30px";
-            this.key_triggered_button("POWER", ["p"], this.powerAdj, "#add8e6", undefined, undefined, pow_controls);
+            this.key_triggered_button("POWER", ["p"], this.powerAdj, "#add8e6", () => this.inc=1, undefined, pow_controls);
             this.live_string(box => {
                 box.textContent = "Arrow Power: " + this.pow_multiplier.toFixed(2)
             }, pow_controls);
@@ -411,8 +421,22 @@ export class FinalProject extends Base_Scene {
         target_transform = target_transform.times(Mat4.rotation(Math.PI/2, 0, 1, 0))
             .times(Mat4.translation(10, 0, 50));
         this.shapes.target.draw(context, program_state, target_transform, this.materials.target);
-
         
+        //UI powerbar
+        let bar_transform = Mat4.identity();
+        let sc = this.pow_multiplier/10-0.1
+        bar_transform = bar_transform.times(Mat4.translation(10,0,-5)).times(Mat4.scale(1,sc,1));
+        if (sc>8)
+            this.shapes.cube.draw(context, program_state, bar_transform, this.materials.bar_r);
+        else if (sc>5)
+            this.shapes.cube.draw(context, program_state, bar_transform, this.materials.bar_y);
+        else
+            this.shapes.cube.draw(context, program_state, bar_transform, this.materials.bar_g);
+        
+        //bar outline
+        let out_transform = Mat4.identity().times(Mat4.translation(10,0,-5)).times(Mat4.scale(1,10,1));
+        this.shapes.outline.draw(context, program_state,out_transform,this.white,"LINES");
+
         // Update each GameObject in the scene then draw it
         for(let i = 0; i < this.gameobjects.length; i++)
         {
