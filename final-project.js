@@ -323,9 +323,9 @@ export class FinalProject extends Base_Scene {
     }
     powerAdj() {
         if(this.inc)
-            this.pow_multiplier += Math.random()*5;
+            this.pow_multiplier += 5;
         else
-            this.pow_multiplier -= Math.random()*5;
+            this.pow_multiplier -= 5;
 
 
         if(this.pow_multiplier<1){
