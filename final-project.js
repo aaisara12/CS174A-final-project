@@ -28,6 +28,9 @@ class Base_Scene extends Scene {
             'arrow': new model_defs.Arrow(),
             'target': new model_defs.Target(),
             'board': new model_defs.Board(),
+            'cube': new defs.Cube(),
+            'outline':new model_defs.Cube_Outline(),
+            'square': new defs.Square(),
         };
 
         // *** Materials
@@ -54,7 +57,22 @@ class Base_Scene extends Scene {
             }),
             archer: new Material(new defs.Phong_Shader(),
                 {ambient: 1.0, diffusivity: .8, color: hex_color("#f7b96d")}),
+            bar_g: new Material(new defs.Phong_Shader(),
+                {ambient: .3, diffusivity: .8, specularity: 1.0, color: hex_color('#00ff00')}),
+            bar_y: new Material(new defs.Phong_Shader(),
+                {ambient: .3, diffusivity: .8, specularity: 1.0, color: hex_color('#ffff00')}),
+            bar_r: new Material(new defs.Phong_Shader(),
+                {ambient: .3, diffusivity: .8, specularity: 1.0, color: hex_color('#ff0000')}),
+            plastic: new Material(new defs.Phong_Shader(),
+                {ambient: .4, diffusivity: .6, specularity: 1.0, color: hex_color("#ffffff")}),
+            score1: new Material(new defs.Textured_Phong(), {
+                color: hex_color("#000000"),
+                ambient: 1, diffusivity: 0.1, specularity: 0.1,
+                texture: new Texture("assets/1.png","NEAREST")
+            }),
+            
         };
+        
         // The white material and basic shader are used for drawing the outline.
         this.white = new Material(new defs.Basic_Shader());
 	this.attached = 0; //initial camera value
@@ -314,9 +332,9 @@ export class FinalProject extends Base_Scene {
     }
     powerAdj() {
         if(this.inc)
-            this.pow_multiplier += Math.random()*5;
+            this.pow_multiplier += 5;
         else
-            this.pow_multiplier -= Math.random()*5;
+            this.pow_multiplier -= 5;
 
 
         if(this.pow_multiplier<1){
@@ -343,16 +361,15 @@ export class FinalProject extends Base_Scene {
 
     make_control_panel() {
         // Draw the scene's buttons, setup their actions and keyboard shortcuts, and monitor live measurements.
-        this.key_triggered_button("Change Colors", ["c"], this.set_colors);
-        this.key_triggered_button("Spawn Arrow", ["v"], () => this.spawn_gameObject(this.shapes.arrow,
-         Mat4.identity().times(Mat4.translation(0,0,-10)),[new components.ForwardDown()], this.materials.arrow));
-        this.key_triggered_button("Spawn Arrow Edge Top", ["x"], () => this.spawn_gameObject(this.shapes.arrow,
+        this.key_triggered_button("Spawn Arrow", ["1"], () => this.spawn_gameObject(this.shapes.arrow,
+         Mat4.identity().times(Mat4.translation(0,0,-10)),[new components.Straight()], this.materials.arrow));
+        this.key_triggered_button("Spawn Arrow Edge Top", ["2"], () => this.spawn_gameObject(this.shapes.arrow,
          Mat4.identity().times(Mat4.translation(0,0,-10)),[new components.InsideTop()], this.materials.arrow));
-        this.key_triggered_button("Spawn Arrow Outside Top", ["z"], () => this.spawn_gameObject(this.shapes.arrow,
+        this.key_triggered_button("Spawn Arrow Outside Top", ["3"], () => this.spawn_gameObject(this.shapes.arrow,
          Mat4.identity().times(Mat4.translation(0,0,-10)),[new components.Outside()], this.materials.arrow));
-        this.key_triggered_button("Spawn Arrow Outside Right", ["g"], () => this.spawn_gameObject(this.shapes.arrow,
+        this.key_triggered_button("Spawn Arrow Outside Right", ["4"], () => this.spawn_gameObject(this.shapes.arrow,
          Mat4.identity().times(Mat4.translation(0,0,-10)),[new components.OutsideRight()], this.materials.arrow));
-        this.key_triggered_button("Spawn Arrow Edge Right", ["h"], () => this.spawn_gameObject(this.shapes.arrow,
+        this.key_triggered_button("Spawn Arrow Edge Right", ["5"], () => this.spawn_gameObject(this.shapes.arrow,
          Mat4.identity().times(Mat4.translation(0,0,-10)),[new components.EdgeRight()], this.materials.arrow));
         
         this.key_triggered_button("Aim Left", ["j"], () => this.person.transform.rotateLocal(0, Math.PI/30, 0));
@@ -360,6 +377,12 @@ export class FinalProject extends Base_Scene {
         this.key_triggered_button("Aim Down", ["k"], () => this.hand.transform.rotateLocal(0, 0, -Math.PI/30));
         this.key_triggered_button("Aim Right", ["l"], () => this.person.transform.rotateLocal(0, -Math.PI/30, 0));
 
+        this.key_triggered_button("Spawn Arrow Top Right", ["6"], () => this.spawn_gameObject(this.shapes.arrow,
+         Mat4.identity().times(Mat4.translation(0,0,-10)),[new components.TopRight()], this.materials.arrow));
+        this.key_triggered_button("Spawn Arrow Gravity Test", ["7"], () => this.spawn_gameObject(this.shapes.arrow,
+         Mat4.identity().times(Mat4.translation(0,0,-10)),[new components.GravityTest()], this.materials.arrow));
+        this.key_triggered_button("Spawn Arrow Gravity Test", ["8"], () => this.spawn_gameObject(this.shapes.arrow,
+         Mat4.identity().times(Mat4.translation(0,0,-10)),[new components.GravityTest2()], this.materials.arrow));
 
         this.new_line();
         this.new_line();
@@ -371,7 +394,7 @@ export class FinalProject extends Base_Scene {
         this.new_line();
         const pow_controls = this.control_panel.appendChild(document.createElement("span"));
             //speed_controls.style.margin = "30px";
-            this.key_triggered_button("POWER", ["p"], this.powerAdj, "#add8e6", undefined, undefined, pow_controls);
+            this.key_triggered_button("POWER", ["p"], this.powerAdj, "#add8e6", () => this.inc=1, undefined, pow_controls);
             this.live_string(box => {
                 box.textContent = "Arrow Power: " + this.pow_multiplier.toFixed(2)
             }, pow_controls);
@@ -382,6 +405,19 @@ export class FinalProject extends Base_Scene {
                 }, "#ff0000");
     }
 
+    calcDist(a, b){
+        return Math.sqrt(Math.pow(a[1][3] - b[1][3], 2) + Math.pow(a[2][3] - b[2][3], 2));
+    }
+
+    updateGameObject(a, targ, t, dt){
+        
+        if(a.transform.model_transform[0][3] > targ[0][3] - 15 && this.calcDist(a.transform.model_transform, targ) < 20){
+            a.update(0,0);
+        }
+        else{
+            a.update(t, dt);
+        }
+    }
     
     display(context, program_state) {
         super.display(context, program_state);
@@ -414,25 +450,42 @@ export class FinalProject extends Base_Scene {
         target_transform = target_transform.times(Mat4.rotation(Math.PI/2, 0, 1, 0))
             .times(Mat4.translation(10, 0, 50));
         this.shapes.target.draw(context, program_state, target_transform, this.materials.target);
-
         
+        //UI powerbar
+        let bar_transform = Mat4.identity();
+        let sc = this.pow_multiplier/10-0.1
+        bar_transform = bar_transform.times(Mat4.translation(10,0,-5)).times(Mat4.scale(1,sc,1));
+        let bar_transform2 = Mat4.inverse(program_state.camera_inverse)
+        let ui_t = Mat4.translation(-20,0,-30)
+        bar_transform2 = bar_transform2.times(ui_t).times(Mat4.scale(1,sc,1));
+        if (sc>8)
+            this.shapes.cube.draw(context, program_state, bar_transform2, this.materials.bar_r);
+        else if (sc>5)
+            this.shapes.cube.draw(context, program_state, bar_transform2, this.materials.bar_y);
+        else
+            this.shapes.cube.draw(context, program_state, bar_transform2, this.materials.bar_g);
+        
+        //bar outline
+        let out_transform = Mat4.identity().times(Mat4.translation(10,0,-5)).times(Mat4.scale(1,10,1));
+        let out_transform2 = Mat4.inverse(program_state.camera_inverse).times(ui_t).times(Mat4.scale(1,10,1));
+        this.shapes.outline.draw(context, program_state,out_transform2,this.white,"LINES");
+        
+
+        //UI score
+        let score_transform = Mat4.identity().times(Mat4.translation(15,0,12)).times(Mat4.scale(3,3,3));
+        let score_transform2 = Mat4.inverse(program_state.camera_inverse).times(Mat4.translation(14,-8,-30)).times(Mat4.rotation(t, 0, 1, 0)).times(Mat4.rotation(0.2*Math.PI, 0, 1, 0));
+        this.shapes.cube.draw(context, program_state, score_transform2, this.materials.score1);
+
         // Update each GameObject in the scene then draw it
         for(let i = 0; i < this.gameobjects.length; i++)
         {
             
-            if(this.gameobjects[i].transform.model_transform[0][3] > target_transform[0][3] - 15 && 
-            this.gameobjects[i].transform.model_transform[1][3] > target_transform[1][3] - 20 &&
-            this.gameobjects[i].transform.model_transform[1][3] < target_transform[1][3] + 20 && 
-            this.gameobjects[i].transform.model_transform[2][3] > target_transform[2][3] - 20 &&
-            this.gameobjects[i].transform.model_transform[2][3] < target_transform[2][3] + 20){
-                this.gameobjects[i].update(0,0);
-            }
-            else{
-                this.gameobjects[i].update(t, dt);
-            }
+            this.updateGameObject(this.gameobjects[i], target_transform, t, dt);
+            
             this.gameobjects[i].draw(context, program_state);
 
         }
+        
 //1st/3rd person camera movement
         if(typeof this.attached === "function"){
             let desired=Mat4.identity();

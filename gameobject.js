@@ -15,6 +15,8 @@ class GameObject
         this.components = components;
         this.material = material;
         
+        this.dy = 0;
+        
         for(let i = 0; i < components.length; i++)
         {
             this.components[i].initialize(this);
