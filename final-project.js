@@ -57,6 +57,7 @@ class Base_Scene extends Scene {
             }),
             archer: new Material(new defs.Phong_Shader(),
                 {ambient: 1.0, diffusivity: .8, color: hex_color("#f7b96d")}),
+
             bar_g: new Material(new defs.Phong_Shader(),
                 {ambient: .3, diffusivity: .8, specularity: 1.0, color: hex_color('#00ff00')}),
             bar_y: new Material(new defs.Phong_Shader(),
@@ -70,9 +71,6 @@ class Base_Scene extends Scene {
                 ambient: 1, diffusivity: 0.1, specularity: 0.1,
                 texture: new Texture("assets/1.png","NEAREST")
             }),
-
-            reference_point: new Material(new defs.Phong_Shader(),
-                {ambient: 1, diffusivity: .8, color: hex_color('#f3d4ff')}),
 
         };
         
@@ -323,8 +321,8 @@ export class FinalProject extends Base_Scene {
         
         // Special GameObjects that require specific reference
         this.bow;
-        this.hand;
-        this.person;
+        this.pitch_joint;
+        this.yaw_joint;
         this.archer_fps_cam;
     }
 
@@ -335,6 +333,12 @@ export class FinalProject extends Base_Scene {
         this.gameobjects.push(spawnedGO);
         return spawnedGO;
     }
+
+    shoot_arrow(shoot_direction_transform, power)
+    {
+        let arrow = this.spawn_gameObject(this.shapes.arrow, shoot_direction_transform.model_transform, [new components.GravityTest2()], this.materials.arrow);
+    }
+
     powerAdj() {
         if(this.inc)
             this.pow_multiplier += 5;
@@ -356,19 +360,24 @@ export class FinalProject extends Base_Scene {
     // Spawn in the archer's joints
     initializeArcher()
     {
-        this.person = this.spawn_gameObject(this.shapes.sun, Mat4.translation(0, 0, -10), [], this.materials.archer);
-        this.hand = this.spawn_gameObject(this.shapes.sun, Mat4.translation(0, 0, -10), [], this.materials.archer);
+        // These are the "joints" about which the player can rotate 
+        this.yaw_joint = new Transform(Mat4.translation(0, 0, -10)); 
+        this.pitch_joint = new Transform(Mat4.translation(0, 0, -10)); 
+
+        // This is the actual bow that we see on screen
         this.bow = this.spawn_gameObject(this.shapes.bow, Mat4.translation(12, 0, -15), [], this.materials.bow);
-        this.archer_fps_cam = this.spawn_gameObject(this.shapes.sun, this.hand.transform.model_transform, [], this.materials.archer);
+
+        // This is the "camera" (defines where the camera should be positioned)
+        this.archer_fps_cam = new Transform(this.pitch_joint.model_transform); 
+        // Point/Position the camera so that it looks down the direction of the bow
+        this.archer_fps_cam.translate(-20, 0, 0);     
+        this.archer_fps_cam.rotateLocal(0, -2*Math.PI/4, 0);
+
+
+        this.yaw_joint.addChild(this.pitch_joint);
+        this.pitch_joint.addChild(this.bow.transform);
+        this.pitch_joint.addChild(this.archer_fps_cam);
         
-        this.archer_fps_cam.transform.translate(-20, 0, 0);
-
-
-        this.person.transform.addChild(this.hand.transform);
-        this.hand.transform.addChild(this.bow.transform);
-        this.hand.transform.addChild(this.archer_fps_cam.transform);
-
-        this.archer_fps_cam.transform.rotateLocal(0, -2*Math.PI/4, 0);
     }
 
     make_control_panel() {
@@ -384,10 +393,10 @@ export class FinalProject extends Base_Scene {
         this.key_triggered_button("Spawn Arrow Edge Right", ["5"], () => this.spawn_gameObject(this.shapes.arrow,
          Mat4.identity().times(Mat4.translation(0,0,-10)),[new components.EdgeRight()], this.materials.arrow));
         
-        this.key_triggered_button("Aim Left", ["j"], () => this.person.transform.rotateLocal(0, Math.PI/30, 0));
-        this.key_triggered_button("Aim Up", ["i"], () => this.hand.transform.rotateLocal(0, 0, Math.PI/30));
-        this.key_triggered_button("Aim Down", ["k"], () => this.hand.transform.rotateLocal(0, 0, -Math.PI/30));
-        this.key_triggered_button("Aim Right", ["l"], () => this.person.transform.rotateLocal(0, -Math.PI/30, 0));
+        this.key_triggered_button("Aim Left", ["j"], () => this.yaw_joint.rotateLocal(0, Math.PI/30, 0));
+        this.key_triggered_button("Aim Up", ["i"], () => this.pitch_joint.rotateLocal(0, 0, Math.PI/30));
+        this.key_triggered_button("Aim Down", ["k"], () => this.pitch_joint.rotateLocal(0, 0, -Math.PI/30));
+        this.key_triggered_button("Aim Right", ["l"], () => this.yaw_joint.rotateLocal(0, -Math.PI/30, 0));
 
         this.key_triggered_button("Spawn Arrow Top Right", ["6"], () => this.spawn_gameObject(this.shapes.arrow,
          Mat4.identity().times(Mat4.translation(0,0,-10)),[new components.TopRight()], this.materials.arrow));
@@ -395,6 +404,8 @@ export class FinalProject extends Base_Scene {
          Mat4.identity().times(Mat4.translation(0,0,-10)),[new components.GravityTest()], this.materials.arrow));
         this.key_triggered_button("Spawn Arrow Gravity Test", ["8"], () => this.spawn_gameObject(this.shapes.arrow,
          Mat4.identity().times(Mat4.translation(0,0,-10)),[new components.GravityTest2()], this.materials.arrow));
+        
+        this.key_triggered_button("Spawn Arrow Direction Test", ["9"], () => this.shoot_arrow(this.bow.transform, 0.5));
 
         this.new_line();
         this.new_line();
@@ -412,9 +423,9 @@ export class FinalProject extends Base_Scene {
             }, pow_controls);
                 this.new_line();
         this.key_triggered_button("SHOOT!", ["Enter"],
-                () => {
+                () => this.shoot_arrow(this.bow.transform, 0.5)
                     
-                }, "#ff0000");
+                , "#ff0000");
     }
 
     calcDist(a, b){
@@ -463,11 +474,6 @@ export class FinalProject extends Base_Scene {
             .times(Mat4.translation(10, 0, 50));
         this.shapes.target.draw(context, program_state, target_transform, this.materials.target);
 
-
-        // Point of reference (used to give a sense of )
-        let reference_transform = Mat4.identity();
-        reference_transform = reference_transform.times(Mat4.translation(30, 0 , 0));
-        this.shapes.cube.draw(context, program_state, reference_transform, this.materials.reference_point);
         
         //UI powerbar
         let bar_transform = Mat4.identity();
@@ -511,7 +517,7 @@ export class FinalProject extends Base_Scene {
             if(this.attached()==3) //third person
                 desired=Mat4.translation(10, 0, -80).times(Mat4.rotation(Math.PI,0,1,0)); 
             else if (this.attached()==1){ //first person
-                desired = Mat4.inverse(this.archer_fps_cam.transform.model_transform); //Mat4.look_at(this.archer_fps_cam_transform.position(), this.bow.transform.position(), vec3(0, 1, 0));
+                desired = Mat4.inverse(this.archer_fps_cam.model_transform); 
 
             }
             else{//free camera

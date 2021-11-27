@@ -73,6 +73,8 @@ class Transform
         
     }
 
+    // TODO: Clamp rotation between two values
+
     rotateLocal(dx, dy, dz)
     {
         let local_rotation = Mat4.rotation(dx, 1, 0, 0).times(Mat4.rotation(dy, 0, 1, 0)).times(Mat4.rotation(dz, 0, 0, 1));
