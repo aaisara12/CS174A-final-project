@@ -3,7 +3,7 @@ import {model_defs} from './model-defs.js';
 
 
 // Components
-import {GameObject} from './gameobject.js';
+import {GameObject, Transform} from './gameobject.js';
 import {components} from './component.js';
 
 const {
@@ -55,6 +55,9 @@ class Base_Scene extends Scene {
                 ambient: 1, diffusivity: 0.1, specularity: 0.1,
                 texture: new Texture("assets/grass.jpg", "LINEAR_MIPMAP_LINEAR")
             }),
+            archer: new Material(new defs.Phong_Shader(),
+                {ambient: 1.0, diffusivity: .8, color: hex_color("#f7b96d")}),
+
             bar_g: new Material(new defs.Phong_Shader(),
                 {ambient: .3, diffusivity: .8, specularity: 1.0, color: hex_color('#00ff00')}),
             bar_y: new Material(new defs.Phong_Shader(),
@@ -68,8 +71,9 @@ class Base_Scene extends Scene {
                 ambient: 1, diffusivity: 0.1, specularity: 0.1,
                 texture: new Texture("assets/1.png","NEAREST")
             }),
-            
+
         };
+        
         // The white material and basic shader are used for drawing the outline.
         this.white = new Material(new defs.Basic_Shader());
 	this.attached = 0; //initial camera value
@@ -314,13 +318,27 @@ export class FinalProject extends Base_Scene {
         this.gameobjects = [];                               // List of GameObjects in scene       
         this.pow_multiplier = 1;
         this.inc = 1;
+        
+        // Special GameObjects that require specific reference
+        this.bow;
+        this.pitch_joint;
+        this.yaw_joint;
+        this.archer_fps_cam;
     }
 
     // Make a special function that spawns in a GameObject into the scene (instantiates a GameObject using a "prefab")
     spawn_gameObject(model, start_transform, components, material)
     {
-        this.gameobjects.push(new GameObject(model, start_transform, components, material));
+        let spawnedGO = new GameObject(model, start_transform, components, material);
+        this.gameobjects.push(spawnedGO);
+        return spawnedGO;
     }
+
+    shoot_arrow(shoot_direction_transform, power)
+    {
+        let arrow = this.spawn_gameObject(this.shapes.arrow, shoot_direction_transform.model_transform, [new components.GravityTest2()], this.materials.arrow);
+    }
+
     powerAdj() {
         if(this.inc)
             this.pow_multiplier += 5;
@@ -337,6 +355,31 @@ export class FinalProject extends Base_Scene {
             this.inc = 0;
         }
     }
+    
+    
+    // Spawn in the archer's joints
+    initializeArcher()
+    {
+        // These are the "joints" about which the player can rotate 
+        this.yaw_joint = new Transform(Mat4.translation(0, 0, -10)); 
+        this.pitch_joint = new Transform(Mat4.translation(0, 0, -10)); 
+
+        // This is the actual bow that we see on screen
+        this.bow = this.spawn_gameObject(this.shapes.bow, Mat4.translation(12, 0, -15), [], this.materials.bow);
+
+        // This is the "camera" (defines where the camera should be positioned)
+        this.archer_fps_cam = new Transform(this.pitch_joint.model_transform); 
+        // Point/Position the camera so that it looks down the direction of the bow
+        this.archer_fps_cam.translate(-20, 0, 0);     
+        this.archer_fps_cam.rotateLocal(0, -2*Math.PI/4, 0);
+
+
+        this.yaw_joint.addChild(this.pitch_joint);
+        this.pitch_joint.addChild(this.bow.transform);
+        this.pitch_joint.addChild(this.archer_fps_cam);
+        
+    }
+
     make_control_panel() {
         // Draw the scene's buttons, setup their actions and keyboard shortcuts, and monitor live measurements.
         this.key_triggered_button("Spawn Arrow", ["1"], () => this.spawn_gameObject(this.shapes.arrow,
@@ -349,6 +392,12 @@ export class FinalProject extends Base_Scene {
          Mat4.identity().times(Mat4.translation(0,0,-10)),[new components.OutsideRight()], this.materials.arrow));
         this.key_triggered_button("Spawn Arrow Edge Right", ["5"], () => this.spawn_gameObject(this.shapes.arrow,
          Mat4.identity().times(Mat4.translation(0,0,-10)),[new components.EdgeRight()], this.materials.arrow));
+        
+        this.key_triggered_button("Aim Left", ["j"], () => this.yaw_joint.rotateLocal(0, Math.PI/30, 0));
+        this.key_triggered_button("Aim Up", ["i"], () => this.pitch_joint.rotateLocal(0, 0, Math.PI/30));
+        this.key_triggered_button("Aim Down", ["k"], () => this.pitch_joint.rotateLocal(0, 0, -Math.PI/30));
+        this.key_triggered_button("Aim Right", ["l"], () => this.yaw_joint.rotateLocal(0, -Math.PI/30, 0));
+
         this.key_triggered_button("Spawn Arrow Top Right", ["6"], () => this.spawn_gameObject(this.shapes.arrow,
          Mat4.identity().times(Mat4.translation(0,0,-10)),[new components.TopRight()], this.materials.arrow));
         this.key_triggered_button("Spawn Arrow Gravity Test", ["7"], () => this.spawn_gameObject(this.shapes.arrow,
@@ -372,9 +421,9 @@ export class FinalProject extends Base_Scene {
             }, pow_controls);
                 this.new_line();
         this.key_triggered_button("SHOOT!", ["Enter"],
-                () => {
+                () => this.shoot_arrow(this.bow.transform, 0.5)
                     
-                }, "#ff0000");
+                , "#ff0000");
     }
 
     calcDist(a, b){
@@ -396,6 +445,9 @@ export class FinalProject extends Base_Scene {
         
         const t = program_state.animation_time / 1000, dt = program_state.animation_delta_time / 1000;
 
+        if(this.bow == null)
+            this.initializeArcher();
+
         // sun
         let sun_transform = Mat4.identity();
         let a = 3;
@@ -408,26 +460,18 @@ export class FinalProject extends Base_Scene {
         program_state.lights =  [new Light(vec4(0, 0, 0, 1), color(1, color_gradient, color_gradient, 1), 10 ** sun_radius)];
         let sun_material = this.materials.sun;
         sun_material = sun_material.override({color:sun_color});
-        //this.shapes.sun.draw(context, program_state, sun_transform, sun_material);
-
-        // bow
-        let bow_transform = Mat4.identity();
-        bow_transform = bow_transform.times(Mat4.translation(5, 0, -10));
-        this.shapes.bow.draw(context, program_state, bow_transform, this.materials.bow);
 
         // move
         let arrow_transform = Mat4.identity();
         arrow_transform = arrow_transform.times(Mat4.translation(t, 0, -10));
       
-        // arrow 
-        // I commented this out for cleanliness - Ryan  
-        // this.shapes.arrow.draw(context, program_state, arrow_transform, this.materials.arrow);
 
         // target
         let target_transform = Mat4.identity();
         target_transform = target_transform.times(Mat4.rotation(Math.PI/2, 0, 1, 0))
             .times(Mat4.translation(10, 0, 50));
         this.shapes.target.draw(context, program_state, target_transform, this.materials.target);
+
         
         //UI powerbar
         let bar_transform = Mat4.identity();
@@ -462,18 +506,16 @@ export class FinalProject extends Base_Scene {
             
             this.gameobjects[i].draw(context, program_state);
 
-            // console.log(t, dt);
-            // console.log(target_transform[0][3], target_transform[1][3], target_transform[2][3]);
-            // console.log(this.calcDist(this.gameobjects[i].transform.model_transform, target_transform));
-            // console.log(this.gameobjects[i].transform.model_transform[0][3], this.gameobjects[i].transform.model_transform[1][3], this.gameobjects[i].transform.model_transform[2][3]);
         }
+
+        
 //1st/3rd person camera movement
         if(typeof this.attached === "function"){
             let desired=Mat4.identity();
             if(this.attached()==3) //third person
                 desired=Mat4.translation(10, 0, -80).times(Mat4.rotation(Math.PI,0,1,0)); 
             else if (this.attached()==1){ //first person
-                desired=bow_transform.times(Mat4.translation(5, 0, 15)).times(Mat4.rotation(Math.PI*0.5,0,1,0));
+                desired = Mat4.inverse(this.archer_fps_cam.model_transform); 
 
             }
             else{//free camera
