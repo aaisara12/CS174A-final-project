@@ -70,7 +70,7 @@ class Base_Scene extends Scene {
                 ambient: 1, diffusivity: 0.1, specularity: 0.1,
                 texture: new Texture("assets/1.png","NEAREST")
             }),
-            
+
         };
         
         // The white material and basic shader are used for drawing the outline.
@@ -317,10 +317,12 @@ export class FinalProject extends Base_Scene {
         this.gameobjects = [];                               // List of GameObjects in scene       
         this.pow_multiplier = 1;
         this.inc = 1;
-
+        
+        // Special GameObjects that require specific reference
         this.bow;
         this.hand;
         this.person;
+        this.archer_fps_cam_transform;
     }
 
     // Make a special function that spawns in a GameObject into the scene (instantiates a GameObject using a "prefab")
@@ -354,6 +356,7 @@ export class FinalProject extends Base_Scene {
         this.person = this.spawn_gameObject(this.shapes.sun, Mat4.translation(0, 0, -10), [], this.materials.archer);
         this.hand = this.spawn_gameObject(this.shapes.sun, Mat4.translation(0, 0, -10), [], this.materials.archer);
         this.bow = this.spawn_gameObject(this.shapes.bow, Mat4.translation(12, 0, -10), [], this.materials.bow);
+
 
         this.person.transform.addChild(this.hand.transform);
         this.hand.transform.addChild(this.bow.transform);
@@ -485,6 +488,7 @@ export class FinalProject extends Base_Scene {
             this.gameobjects[i].draw(context, program_state);
 
         }
+
         
 //1st/3rd person camera movement
         if(typeof this.attached === "function"){
@@ -492,7 +496,7 @@ export class FinalProject extends Base_Scene {
             if(this.attached()==3) //third person
                 desired=Mat4.translation(10, 0, -80).times(Mat4.rotation(Math.PI,0,1,0)); 
             else if (this.attached()==1){ //first person
-                desired=bow_transform.times(Mat4.translation(5, 0, 15)).times(Mat4.rotation(Math.PI*0.5,0,1,0));
+                desired = Mat4.look_at(this.person.transform.position(), this.bow.transform.position(), vec3(0, 1, 0));
 
             }
             else{//free camera

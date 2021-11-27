@@ -80,6 +80,11 @@ class Transform
         this.transformLocal(local_rotation);
     }
 
+    position()
+    {
+        return vec3(this.model_transform[0][3], this.model_transform[1][3], this.model_transform[2][3]);
+    }
+
 
     
     ///////////////////
