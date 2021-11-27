@@ -404,8 +404,6 @@ export class FinalProject extends Base_Scene {
          Mat4.identity().times(Mat4.translation(0,0,-10)),[new components.GravityTest()], this.materials.arrow));
         this.key_triggered_button("Spawn Arrow Gravity Test", ["8"], () => this.spawn_gameObject(this.shapes.arrow,
          Mat4.identity().times(Mat4.translation(0,0,-10)),[new components.GravityTest2()], this.materials.arrow));
-        
-        this.key_triggered_button("Spawn Arrow Direction Test", ["9"], () => this.shoot_arrow(this.bow.transform, 0.5));
 
         this.new_line();
         this.new_line();
