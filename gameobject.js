@@ -115,4 +115,4 @@ class Transform
     }
 }
 
-export {GameObject};
+export {GameObject, Transform};

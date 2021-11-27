@@ -3,7 +3,7 @@ import {model_defs} from './model-defs.js';
 
 
 // Components
-import {GameObject} from './gameobject.js';
+import {GameObject, Transform} from './gameobject.js';
 import {components} from './component.js';
 
 const {
@@ -70,6 +70,9 @@ class Base_Scene extends Scene {
                 ambient: 1, diffusivity: 0.1, specularity: 0.1,
                 texture: new Texture("assets/1.png","NEAREST")
             }),
+
+            reference_point: new Material(new defs.Phong_Shader(),
+                {ambient: 1, diffusivity: .8, color: hex_color('#f3d4ff')}),
 
         };
         
@@ -322,7 +325,7 @@ export class FinalProject extends Base_Scene {
         this.bow;
         this.hand;
         this.person;
-        this.archer_fps_cam_transform;
+        this.archer_fps_cam;
     }
 
     // Make a special function that spawns in a GameObject into the scene (instantiates a GameObject using a "prefab")
@@ -355,11 +358,17 @@ export class FinalProject extends Base_Scene {
     {
         this.person = this.spawn_gameObject(this.shapes.sun, Mat4.translation(0, 0, -10), [], this.materials.archer);
         this.hand = this.spawn_gameObject(this.shapes.sun, Mat4.translation(0, 0, -10), [], this.materials.archer);
-        this.bow = this.spawn_gameObject(this.shapes.bow, Mat4.translation(12, 0, -10), [], this.materials.bow);
+        this.bow = this.spawn_gameObject(this.shapes.bow, Mat4.translation(12, 0, -15), [], this.materials.bow);
+        this.archer_fps_cam = this.spawn_gameObject(this.shapes.sun, this.hand.transform.model_transform, [], this.materials.archer);
+        
+        this.archer_fps_cam.transform.translate(-20, 0, 0);
 
 
         this.person.transform.addChild(this.hand.transform);
         this.hand.transform.addChild(this.bow.transform);
+        this.hand.transform.addChild(this.archer_fps_cam.transform);
+
+        this.archer_fps_cam.transform.rotateLocal(0, -2*Math.PI/4, 0);
     }
 
     make_control_panel() {
@@ -453,6 +462,12 @@ export class FinalProject extends Base_Scene {
         target_transform = target_transform.times(Mat4.rotation(Math.PI/2, 0, 1, 0))
             .times(Mat4.translation(10, 0, 50));
         this.shapes.target.draw(context, program_state, target_transform, this.materials.target);
+
+
+        // Point of reference (used to give a sense of )
+        let reference_transform = Mat4.identity();
+        reference_transform = reference_transform.times(Mat4.translation(30, 0 , 0));
+        this.shapes.cube.draw(context, program_state, reference_transform, this.materials.reference_point);
         
         //UI powerbar
         let bar_transform = Mat4.identity();
@@ -496,7 +511,7 @@ export class FinalProject extends Base_Scene {
             if(this.attached()==3) //third person
                 desired=Mat4.translation(10, 0, -80).times(Mat4.rotation(Math.PI,0,1,0)); 
             else if (this.attached()==1){ //first person
-                desired = Mat4.look_at(this.person.transform.position(), this.bow.transform.position(), vec3(0, 1, 0));
+                desired = Mat4.inverse(this.archer_fps_cam.transform.model_transform); //Mat4.look_at(this.archer_fps_cam_transform.position(), this.bow.transform.position(), vec3(0, 1, 0));
 
             }
             else{//free camera
