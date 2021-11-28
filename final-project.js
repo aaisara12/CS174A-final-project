@@ -12,6 +12,17 @@ class Base_Scene extends Scene {
     constructor() {
         super();
         this.hover = this.swarm = false;
+        this.bgm = new Audio();
+        this.bgm.src = 'assets/battle.mp3';
+        this.arrow_shot = new Audio();
+        this.arrow_shot.src = 'assets/bow_shoot.mp3';
+        this.hit = new Audio();
+        this.hit.src = 'assets/hitmarker.mp3';
+        this.victory = new Audio();
+        this.victory.src = 'assets/victory!.mp3';
+        this.fail = new Audio();
+        this.fail.src = 'assets/fail.mp3';
+
 
         this.shapes = {
             'sky': new defs.Subdivision_Sphere(4),
@@ -22,6 +33,8 @@ class Base_Scene extends Scene {
             'arrow': new Arrow(),
             'target': new Target(),
             'board': new Board(),
+            'fire': new Emitter(),
+            'fire_particle': new Particle()
         };
 
         // *** Materials
@@ -29,26 +42,44 @@ class Base_Scene extends Scene {
             sun: new Material(new defs.Phong_Shader(), // declare materials
                 {ambient: 1.0}),
             arrow: new Material(new defs.Phong_Shader(),
-                {ambient: .3, diffusivity: .8, color: hex_color('#deb887')}),
+                {ambient: .05, diffusivity: .8, color: hex_color('#deb887')}),
             bow: new Material(new defs.Phong_Shader(),
-                {ambient: .3, diffusivity: .8, color: hex_color('#fff8dc')}),
+                {ambient: .05, diffusivity: .8, color: hex_color('#fff8dc')}),
             target: new Material(new Target_Shader(),
-                {ambient: .3, diffusivity: .8}),
+                {ambient: .05, diffusivity: .8, specularity: 1, diffusivity: 0.8}),
             board: new Material(new defs.Phong_Shader(),
                 {ambient: .3, diffusivity: .8, color: hex_color('#fff8dc')}),
             sky_texture: new Material(new defs.Textured_Phong(), {
                 color: hex_color("#000000"),
-                ambient: 1, diffusivity: 0.1, specularity: 0.1,
+                ambient: .85, diffusivity: 0.9, specularity: 0.1,
                 texture: new Texture("assets/sky.png", "LINEAR_MIPMAP_LINEAR")
+            }),
+            night_sky_texture: new Material(new defs.Textured_Phong(), {
+                color: hex_color("#000000"),
+                ambient: .5, diffusivity: 0.9, specularity: 0.1,
+                texture: new Texture("assets/starry.jpg", "LINEAR_MIPMAP_LINEAR")
             }),
             ground: new Material(new defs.Textured_Phong(), {
                 color: hex_color("#000000"),
-                ambient: 1, diffusivity: 0.1, specularity: 0.1,
+                ambient: .5, diffusivity: 0.1, specularity: 0.1,
                 texture: new Texture("assets/grass.jpg", "LINEAR_MIPMAP_LINEAR")
             }),
+            fire_texture: new Material(new defs.Textured_Phong(), {
+                color: hex_color("#000000"),
+                ambient: .5, diffusivity: 1, specularity: 1,
+                texture: new Texture("assets/Fire.gif", "LINEAR_MIPMAP_LINEAR")
+            }),
+
         };
         // The white material and basic shader are used for drawing the outline.
         this.white = new Material(new defs.Basic_Shader());
+        this.sky = true;
+        this.sun_coef = Math.PI * (0.03);
+
+        this.particles = new Array();
+        for(let i = 0; i < 30; i++) {
+            this.particles.push(new Particle(Mat4.identity(), 0.0, false));
+        }
     }
 
     display(context, program_state) {
@@ -62,11 +93,11 @@ class Base_Scene extends Scene {
             program_state.set_camera(Mat4.translation(5, -10, -30));
         }
         program_state.projection_transform = Mat4.perspective(
-            Math.PI / 4, context.width / context.height, 1, 100);
+            Math.PI / 4, context.width / context.height, 1, 1000);
 
         // *** Lights: *** Values of vector or point lights.
         const light_position = vec4(10, 10, 10, 1);
-        program_state.lights = [new Light(light_position, color(1, 1, 1, 1), 1000)];
+        program_state.lights = [new Light(light_position, color(1, 1, 1, 1), 1)];
     }
 }
 
@@ -74,7 +105,11 @@ export class FinalProject extends Base_Scene {
 
     make_control_panel() {
         // Draw the scene's buttons, setup their actions and keyboard shortcuts, and monitor live measurements.
-        this.key_triggered_button("Change Colors", ["c"], this.set_colors);
+        this.key_triggered_button("music!", ["m"], () => {this.bgm.play();} );
+        this.key_triggered_button("shoot", ["c"], () => {this.arrow_shot.play();} );
+        this.key_triggered_button("hit", ["j"], () => {this.hit.play();} );
+        this.key_triggered_button("victory", ["k"], () => {this.victory.play();} );
+        this.key_triggered_button("fail", ["l"], () => {this.fail.play();} );
 
     }
 
@@ -86,42 +121,61 @@ export class FinalProject extends Base_Scene {
         const t = program_state.animation_time / 1000, dt = program_state.animation_delta_time / 1000;
         // Example for drawing a cube, you can remove this line if needed
         // this.shapes.cube.draw(context, program_state, model_transform, this.materials.plastic.override({color:blue}));
-
+        let period = (2 * Math.PI) / this.sun_coef;
+        if(t % (period) < period/2) {
+            this.sky = true;
+        }
+        else
+            this.sky = false;
+            
         // sky
         let sky_transform = Mat4.identity();
-        sky_transform = sky_transform.times(Mat4.scale(100, 100, 100));
-        this.shapes.sky.draw(context, program_state, sky_transform, this.materials.sky_texture);
+        sky_transform = sky_transform.times(Mat4.scale(500, 500, 500));
+        if(this.sky)
+            this.shapes.sky.draw(context, program_state, sky_transform, this.materials.sky_texture);
+        else 
+            this.shapes.sky.draw(context, program_state, sky_transform, this.materials.night_sky_texture);
 
         // ground
         let ground_transform = Mat4.identity();
-        ground_transform = ground_transform.times(Mat4.scale(100, 1, 100))
-            .times(Mat4.translation(0, -20, 0));
+        ground_transform = ground_transform.times(Mat4.scale(500, 1, 500))
+            .times(Mat4.translation(0, 0, 0));
         this.shapes.ground.draw(context, program_state, ground_transform, this.materials.ground);
-
+        
         // sun
         let sun_transform = Mat4.identity();
-        let a = 3;
-        let b = 1.5;
-        let w = (1/3) * Math.PI; 
-        let sun_radius = a + b*Math.sin(w*t);
-        let color_gradient = 0.5 + 0.5*Math.sin(w * t)
-        let sun_color = vec4(1, color_gradient, color_gradient, 1);
-        sun_transform = sun_transform.times(Mat4.scale(sun_radius, sun_radius, sun_radius));
-        program_state.lights =  [new Light(vec4(0, 0, 0, 1), color(1, color_gradient, color_gradient, 1), 10 ** sun_radius)];
+        sun_transform = sun_transform.times(Mat4.rotation(this.sun_coef * t, 1, 0, 0))
+               .times(Mat4.translation(0, 0, -250));
+        
+        let sun_color = vec4(1, 1, 1, 1);
         let sun_material = this.materials.sun;
         sun_material = sun_material.override({color:sun_color});
-        this.shapes.sun.draw(context, program_state, sun_transform, sun_material);
+        if(this.sky) {
+            program_state.lights =  [new Light(sun_transform.transposed()[3], color(1, 1, 1, 1), 10 ** 10)];
+            this.shapes.sun.draw(context, program_state, sun_transform, sun_material);
+        }
+
+        // moon
+        let moon_transform = Mat4.identity();
+        moon_transform = moon_transform.times(Mat4.rotation(this.sun_coef * t, 1, 0, 0))
+               .times(Mat4.translation(0, 0, 250));
+        let moon_color = vec4(1, 1, 1, 1);
+        let moon_material = this.materials.sun;
+        moon_material = moon_material.override({color:moon_color});
+
+        if(!this.sky) {
+            program_state.lights =  [new Light(moon_transform.transposed()[3], color(1, 1, 1, 1), 10 ** 3)];
+            this.shapes.sun.draw(context, program_state, moon_transform, moon_material);
+        }
 
         // bow
         let bow_transform = Mat4.identity();
-        bow_transform = bow_transform.times(Mat4.translation(5, 0, -10));
+        bow_transform = bow_transform.times(Mat4.translation(5, 30, 0));
         this.shapes.bow.draw(context, program_state, bow_transform, this.materials.bow);
-        bow_transform = bow_transform.times(Mat4.translation(0, 0, -10));
-        this.shapes.drawn_bow.draw(context, program_state, bow_transform, this.materials.bow);
 
         // move
         let arrow_transform = Mat4.identity();
-        arrow_transform = arrow_transform.times(Mat4.translation(t, 0, -10));
+        arrow_transform = arrow_transform.times(Mat4.translation(5 * t, 30, 0));
       
         // arrow   
         this.shapes.arrow.draw(context, program_state, arrow_transform, this.materials.arrow);
@@ -129,12 +183,31 @@ export class FinalProject extends Base_Scene {
         // target
         let target_transform = Mat4.identity();
         target_transform = target_transform.times(Mat4.rotation(Math.PI/2, 0, 1, 0))
-            .times(Mat4.translation(10, 0, 50));
+            .times(Mat4.translation(0, 30, 100));
         this.shapes.target.draw(context, program_state, target_transform, this.materials.target);
 
-        let board_transform = Mat4.identity();
-        board_transform = board_transform.times(Mat4.translation(0, 0, -25));
-        this.shapes.board.draw(context,program_state, board_transform, this.materials.board);
+        // fire
+        let fire_transform = Mat4.identity();
+        fire_transform = fire_transform.times(Mat4.translation(t, 10, 0));
+        this.shapes.fire.draw(context, program_state, fire_transform, this.materials.fire_texture);
+
+        
+        for(let i = 0; i < 30; i++) {
+            if(this.particles[i].init == false) {
+                this.particles[i].init = true;
+                this.particles[i].transformation = fire_transform;
+            }
+            else {
+                if(t > this.particles[i].end_time) {
+                    this.particles.splice(i, 1);
+                    this.particles.push(new Particle(fire_transform, t, true))
+                }
+                this.particles[i].transformation = this.particles[i].transformation.times(Mat4.translation(this.particles[i].vel_x * dt, (Math.random() + 3 + 3) * dt, this.particles[i].vel_z * dt));
+                this.shapes.fire_particle.draw(context, program_state, this.particles[i].transformation, this.materials.fire_texture);
+            }
+        }
+
+
     }
 }
 
@@ -272,6 +345,33 @@ class Board extends Shape {
         defs.Cube.insert_transformed_copy_into(this, [], board_transform);
     }
 
+}
+
+class Particle extends Shape {
+    constructor(transformation, init_time, init) {
+        super("position", "normal", "texture_coord");
+        this.transformation = transformation;
+        this.init_time = init_time;
+        this.end_time = init_time + (Math.random() * 3 + 1);
+        this.init = init;
+        this.vel_x = Math.random() * 4 - 2;
+        this.vel_z = Math.random() * 4 - 2;
+
+        let shrink = Mat4.identity();
+        shrink = shrink.times(Mat4.scale(0.2, 0.2, 0.2));
+        defs.Subdivision_Sphere.insert_transformed_copy_into(this, [4], shrink);
+    }
+}
+
+// fire emitter
+class Emitter extends Shape {
+     constructor() {
+        super("position", "normal", "texture_coord");
+        let emitter_transform = Mat4.identity();
+        //emitter_transform = emitter_transform.times(Mat4.scale(2, 2, 0.1));
+        defs.Cube.insert_transformed_copy_into(this, [4], emitter_transform);
+
+    }
 }
 
 //target object class
@@ -460,5 +560,77 @@ class Target_Shader extends Shader {
 
         this.send_material(context, gpu_addresses, material);
         this.send_gpu_state(context, gpu_addresses, gpu_state, model_transform);
+    }
+}
+
+class Particles extends Shader {
+    update_GPU(context, gpu_addresses, graphics_state, model_transform, material) {
+        // update_GPU():  Defining how to synchronize our JavaScript's variables to the GPU's:
+        const [P, C, M] = [graphics_state.projection_transform, graphics_state.camera_inverse, model_transform],
+            PCM = P.times(C).times(M);
+        context.uniformMatrix4fv(gpu_addresses.model_transform, false, Matrix.flatten_2D_to_1D(model_transform.transposed()));
+        context.uniformMatrix4fv(gpu_addresses.projection_camera_model_transform, false,
+            Matrix.flatten_2D_to_1D(PCM.transposed()));
+        //this.send_material(context, gpu_addresses, material);
+    }
+
+    shared_glsl_code() {
+        // ********* SHARED CODE, INCLUDED IN BOTH SHADERS *********
+        return `
+        precision mediump float;
+        varying vec4 point_position;
+        varying vec4 center;
+
+        typedef point4 vec4;
+        typedef struct particle
+        {
+            int color;
+            point4 position;
+            vec4 velocity;
+            float mass;
+        } particle;
+        
+        particle particles[10];
+        `;
+    }
+
+    vertex_glsl_code() {
+        // ********* VERTEX SHADER *********
+        // TODO:  Complete the main function of the vertex shader (Extra Credit Part II).
+        return this.shared_glsl_code() + `
+            layout (location = 0) in vec4 vertex; // <vec2 position, vec2 texCoords>
+
+            out vec2 TexCoords;
+            out vec4 ParticleColor;
+
+            uniform mat4 projection;
+            uniform vec2 offset;
+            uniform vec4 color;
+
+            void main()
+            {
+                float scale = 10.0f;
+                TexCoords = vertex.zw;
+                ParticleColor = color;
+                gl_Position = projection * vec4((vertex.xy * scale) + offset, 0.0, 1.0);
+            }
+        `;
+    }
+
+    fragment_glsl_code() {
+        // ********* FRAGMENT SHADER *********
+        // TODO:  Complete the main function of the fragment shader (Extra Credit Part II).
+        return this.shared_glsl_code() + `
+            in vec2 TexCoords;
+            in vec4 ParticleColor;
+            out vec4 color;
+
+            uniform sampler2D sprite;
+
+            void main()
+            {
+                color = (texture(sprite, TexCoords) * ParticleColor);
+            } 
+        `;
     }
 }
