@@ -585,7 +585,7 @@ export class FinalProject extends Base_Scene {
 
         //UI score
         let score_transform = Mat4.identity().times(Mat4.translation(15,0,12)).times(Mat4.scale(3,3,3));
-        let score_transform2 = Mat4.inverse(program_state.camera_inverse).times(Mat4.translation(14,-8,-30)).times(Mat4.rotation(t, 0, 1, 0)).times(Mat4.rotation(0.2*Math.PI, 0, 1, 0));
+        let score_transform2 = Mat4.inverse(program_state.camera_inverse).times(Mat4.translation(20,0,-30)).times(Mat4.rotation(t, 0, 1, 0)).times(Mat4.rotation(0.2*Math.PI, 0, 1, 0));
         this.shapes.cube.draw(context, program_state, score_transform2, this.materials.score1);
 
         // Update each GameObject in the scene then draw it
