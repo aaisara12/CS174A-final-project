@@ -484,22 +484,6 @@ export class FinalProject extends Base_Scene {
         fire_transform = fire_transform.times(Mat4.translation(t, 10, 0));
         this.shapes.fire.draw(context, program_state, fire_transform, this.materials.fire_texture);
 
-        // particle generation
-        for(let i = 0; i < 30; i++) {
-            if(this.particles[i].init == false) {
-                this.particles[i].init = true;
-                this.particles[i].transformation = fire_transform;
-            }
-            else {
-                if(t > this.particles[i].end_time) {
-                    this.particles.splice(i, 1);
-                    this.particles.push(new Particle(fire_transform, t, true))
-                }
-                this.particles[i].transformation = this.particles[i].transformation.times(Mat4.translation(this.particles[i].vel_x * dt, (Math.random() + 3 + 3) * dt, this.particles[i].vel_z * dt));
-                this.shapes.fire_particle.draw(context, program_state, this.particles[i].transformation, this.materials.fire_texture);
-            }
-        }
-
         // day/night cycle
         let period = (2 * Math.PI) / this.sun_coef;
         if(t % (period) < period/2) {
@@ -534,8 +518,7 @@ export class FinalProject extends Base_Scene {
         let sun_material = this.materials.sun;
         sun_material = sun_material.override({color:sun_color});
         if(this.sky) {
-            program_state.lights =  [new Light(sun_transform.transposed()[3], color(1, 1, 1, 1), 10 ** 10),
-                                     new Light(fire_transform.transposed()[3], color(1, 1, 1, 1), 10 ** 10)];
+            program_state.lights =  [new Light(sun_transform.transposed()[3], color(1, 1, 1, 1), 10 ** 10)];
             this.shapes.sun.draw(context, program_state, sun_transform, sun_material);
         }
 
@@ -548,11 +531,28 @@ export class FinalProject extends Base_Scene {
         moon_material = moon_material.override({color:moon_color});
 
         if(!this.sky) {
-            program_state.lights =  [new Light(moon_transform.transposed()[3], color(1, 1, 1, 1), 10 ** 3),
-                                     new Light(fire_transform.transposed()[3], color(1, 1, 1, 1), 10 ** 10)];
+            program_state.lights =  [new Light(moon_transform.transposed()[3], color(1, 1, 1, 1), 10 ** 3)];
             this.shapes.sun.draw(context, program_state, moon_transform, moon_material);
         }
 
+        // particle generation
+        for(let i = 0; i < 30; i++) {
+            if(this.particles[i].init == false) {
+                this.particles[i].init = true;
+                this.particles[i].transformation = fire_transform;
+            }
+            else {
+                if(t > this.particles[i].end_time) {
+                    this.particles.splice(i, 1);
+                    this.particles.push(new Particle(fire_transform, t, true))
+                }
+                this.particles[i].transformation = this.particles[i].transformation.times(Mat4.translation(this.particles[i].vel_x * dt, (Math.random() + 3 + 3) * dt, this.particles[i].vel_z * dt));
+                this.shapes.fire_particle.draw(context, program_state, this.particles[i].transformation, this.materials.fire_texture);
+            }
+        }
+
+        program_state.lights.push(new Light(fire_transform.transposed()[3], color(1, 1, 1, 1), 10 ** 10));
+        
         // move
         let arrow_transform = Mat4.identity();
         arrow_transform = arrow_transform.times(Mat4.translation(t, 0, -10));
