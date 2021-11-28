@@ -9,6 +9,35 @@ const model_defs = {};
 
 export {model_defs};
 
+const Particle = model_defs.Particle = 
+    class Particle extends Shape {
+        constructor(transformation, init_time, init) {
+            super("position", "normal", "texture_coord");
+            this.transformation = transformation;
+            this.init_time = init_time;
+            this.end_time = init_time + (Math.random() * 3 + 1);
+            this.init = init;
+            this.vel_x = Math.random() * 4 - 2;
+            this.vel_z = Math.random() * 4 - 2;
+
+            let shrink = Mat4.identity();
+            shrink = shrink.times(Mat4.scale(0.2, 0.2, 0.2));
+            defs.Subdivision_Sphere.insert_transformed_copy_into(this, [4], shrink);
+        }
+    }
+
+// fire emitter
+const Emitter = model_defs.Emitter = 
+    class Emitter extends Shape {
+         constructor() {
+            super("position", "normal", "texture_coord");
+            let emitter_transform = Mat4.identity();
+            //emitter_transform = emitter_transform.times(Mat4.scale(2, 2, 0.1));
+            defs.Cube.insert_transformed_copy_into(this, [4], emitter_transform);
+
+        }
+    }
+
 // sub component for bow
 class Sticks extends Shape {
     constructor(length) {

@@ -43,8 +43,8 @@ class Base_Scene extends Scene {
             'cube': new defs.Cube(),
             'outline':new model_defs.Cube_Outline(),
             'square': new defs.Square(),
-            'fire': new Emitter(),
-            'fire_particle': new Particle()
+            'fire': new model_defs.Emitter(),
+            'fire_particle': new model_defs.Particle()
         };
 
         // *** Materials
@@ -116,7 +116,7 @@ class Base_Scene extends Scene {
         // particle array
         this.particles = new Array();
         for(let i = 0; i < 30; i++) {
-            this.particles.push(new Particle(Mat4.identity(), 0.0, false));
+            this.particles.push(new model_defs.Particle(Mat4.identity(), 0.0, false));
         }
     }
 
@@ -550,7 +550,7 @@ export class FinalProject extends Base_Scene {
             else {
                 if(t > this.particles[i].end_time) {
                     this.particles.splice(i, 1);
-                    this.particles.push(new Particle(fire_transform, t, true))
+                    this.particles.push(new model_defs.Particle(fire_transform, t, true))
                 }
                 this.particles[i].transformation = this.particles[i].transformation.times(Mat4.translation(this.particles[i].vel_x * dt, (Math.random() + 3 + 3) * dt, this.particles[i].vel_z * dt));
                 this.shapes.fire_particle.draw(context, program_state, this.particles[i].transformation, this.materials.fire_texture);
@@ -653,32 +653,6 @@ export class FinalProject extends Base_Scene {
     }
 }
 
-class Particle extends Shape {
-    constructor(transformation, init_time, init) {
-        super("position", "normal", "texture_coord");
-        this.transformation = transformation;
-        this.init_time = init_time;
-        this.end_time = init_time + (Math.random() * 3 + 1);
-        this.init = init;
-        this.vel_x = Math.random() * 4 - 2;
-        this.vel_z = Math.random() * 4 - 2;
-
-        let shrink = Mat4.identity();
-        shrink = shrink.times(Mat4.scale(0.2, 0.2, 0.2));
-        defs.Subdivision_Sphere.insert_transformed_copy_into(this, [4], shrink);
-    }
-}
-
-// fire emitter
-class Emitter extends Shape {
-     constructor() {
-        super("position", "normal", "texture_coord");
-        let emitter_transform = Mat4.identity();
-        //emitter_transform = emitter_transform.times(Mat4.scale(2, 2, 0.1));
-        defs.Cube.insert_transformed_copy_into(this, [4], emitter_transform);
-
-    }
-}
 
 
 
