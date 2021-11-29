@@ -515,8 +515,9 @@ export class FinalProject extends Base_Scene {
     }
     
     updateGameObject(a, targ, t, dt, recent){
-        
-        if(a.transform.model_transform[0][3] > targ[0][3] - 15 && this.calcDist(a.transform.model_transform, targ) < 20){
+        let distCheck = this.calcDist(a.transform.model_transform, targ) < 20
+        let modelCheck = a.transform.model_transform[0][3] > targ[0][3] - 15
+        if(modelCheck&&distCheck){
             a.update(0,0);
             if(recent){
                 this.score=this.scoreFinder(a,targ);
@@ -524,6 +525,9 @@ export class FinalProject extends Base_Scene {
         }
         else{
             a.update(t, dt);
+        }
+        if(!distCheck&&modelCheck&&recent){ //doesn't hit target, has passed it
+            this.score=0;
         }
     }
 
