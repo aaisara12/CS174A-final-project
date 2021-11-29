@@ -403,7 +403,6 @@ export class FinalProject extends Base_Scene {
         this.pow_multiplier = 1;
         this.inc = 1;
         this.score =0;
-        
         // Special GameObjects that require specific reference
         this.bow;
         this.pitch_joint;
@@ -514,16 +513,26 @@ export class FinalProject extends Base_Scene {
     calcDist(a, b){
         return Math.sqrt(Math.pow(a[1][3] - b[1][3], 2) + Math.pow(a[2][3] - b[2][3], 2));
     }
-
-    updateGameObject(a, targ, t, dt){
+    
+    updateGameObject(a, targ, t, dt, recent){
         
         if(a.transform.model_transform[0][3] > targ[0][3] - 15 && this.calcDist(a.transform.model_transform, targ) < 20){
             a.update(0,0);
+            if(recent){
+                this.score=this.scoreFinder(a,targ);
+            }
         }
         else{
             a.update(t, dt);
         }
     }
+
+    scoreFinder(a, targ){
+        
+        let pos = this.calcDist(a.transform.model_transform, targ)
+        return Math.trunc((20-pos)/2+0.5);
+    }
+    
     
     display(context, program_state) {
         super.display(context, program_state);
@@ -677,8 +686,10 @@ export class FinalProject extends Base_Scene {
         // Update each GameObject in the scene then draw it
         for(let i = 0; i < this.gameobjects.length; i++)
         {
-            
-            this.updateGameObject(this.gameobjects[i], target_transform, t, dt);
+            if (i == this.gameobjects.length-1)
+                this.updateGameObject(this.gameobjects[i], target_transform, t, dt, true);
+            else
+                this.updateGameObject(this.gameobjects[i], target_transform, t, dt, false);
             
             this.gameobjects[i].draw(context, program_state);
 
