@@ -515,12 +515,13 @@ export class FinalProject extends Base_Scene {
     }
     
     updateGameObject(a, targ, t, dt, recent){
-        let distCheck = this.calcDist(a.transform.model_transform, targ) < 20
+        let radius = 20;
+        let distCheck = this.calcDist(a.transform.model_transform, targ) < radius
         let modelCheck = a.transform.model_transform[0][3] > targ[0][3] - 15
         if(modelCheck&&distCheck){
             a.update(0,0);
             if(recent){
-                this.score=this.scoreFinder(a,targ);
+                this.score=this.scoreFinder(a,targ,radius);
             }
         }
         else{
@@ -531,10 +532,9 @@ export class FinalProject extends Base_Scene {
         }
     }
 
-    scoreFinder(a, targ){
-        
+    scoreFinder(a, targ,radius){
         let pos = this.calcDist(a.transform.model_transform, targ)
-        return Math.trunc((20-pos)/2+0.5);
+        return Math.trunc((radius-pos)/(radius/10)+0.5);
     }
     
     
