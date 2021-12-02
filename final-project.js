@@ -542,7 +542,7 @@ export class FinalProject extends Base_Scene {
 
     scoreFinder(a, targ,radius){
         let pos = this.calcDist(a.transform.model_transform, targ)
-        return Math.trunc((radius-pos)/(radius/10)+0.5);
+        return Math.trunc((radius-pos)/(radius/10)+0.999);
     }
     
     
