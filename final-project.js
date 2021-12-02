@@ -590,7 +590,7 @@ export class FinalProject extends Base_Scene {
         else{
             a.update(t, dt);
         }
-        if(!distCheck&&modelCheck&&recent){ //doesn't hit target, has passed it
+        if(!distCheck&&modelCheck&&recent&& this.target_moved == false){ //doesn't hit target, has passed it
             this.score=0;
             this.fail.play();
         }
