@@ -420,7 +420,7 @@ export class FinalProject extends Base_Scene {
 
     shoot_arrow(shoot_direction_transform, power)
     {
-        let arrow = this.spawn_gameObject(this.shapes.arrow, shoot_direction_transform.model_transform, [new components.GravityTest2()], this.materials.arrow);
+        let arrow = this.spawn_gameObject(this.shapes.arrow, shoot_direction_transform.model_transform, [new components.GravityTest2(power)], this.materials.arrow);
     }
 
     powerAdj() {
@@ -505,7 +505,7 @@ export class FinalProject extends Base_Scene {
             }, pow_controls);
                 this.new_line();
         this.key_triggered_button("SHOOT!", ["Enter"],
-                () => this.shoot_arrow(this.bow.transform, 0.5)
+                () => this.shoot_arrow(this.bow.transform, this.pow_multiplier.toFixed(2))
                     
                 , "#ff0000");
     }
@@ -516,8 +516,10 @@ export class FinalProject extends Base_Scene {
     
     updateGameObject(a, targ, t, dt, recent){
         let radius = 20;
-        let distCheck = this.calcDist(a.transform.model_transform, targ) < radius
-        let modelCheck = a.transform.model_transform[0][3] > targ[0][3] - 15
+        let distCheck = this.calcDist(a.transform.model_transform, targ) < radius;
+        let modelCheck = a.transform.model_transform[0][3] > targ[0][3] - 15;
+        // console.log(a.Transform);
+        // console.log(a.transform.local_transform);
         if(modelCheck&&distCheck){
             a.update(0,0);
             if(recent){
