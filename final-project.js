@@ -19,6 +19,18 @@ class Base_Scene extends Scene {
         super();
         this.hover = this.swarm = false;
 
+        // audio
+        this.bgm = new Audio();
+        this.bgm.src = 'assets/battle.mp3';
+        this.arrow_shot = new Audio();
+        this.arrow_shot.src = 'assets/bow_shoot.mp3';
+        this.hit = new Audio();
+        this.hit.src = 'assets/hitmarker.mp3';
+        this.victory = new Audio();
+        this.victory.src = 'assets/victory!.mp3';
+        this.fail = new Audio();
+        this.fail.src = 'assets/fail.mp3';
+
         this.shapes = {
             'sky': new defs.Subdivision_Sphere(4),
             'ground': new defs.Cube(),
@@ -31,6 +43,8 @@ class Base_Scene extends Scene {
             'cube': new defs.Cube(),
             'outline':new model_defs.Cube_Outline(),
             'square': new defs.Square(),
+            'fire': new model_defs.Emitter(),
+            'fire_particle': new model_defs.Particle()
         };
 
         // *** Materials
@@ -50,10 +64,20 @@ class Base_Scene extends Scene {
                 ambient: 1, diffusivity: 0.1, specularity: 0.1,
                 texture: new Texture("assets/sky.png", "LINEAR_MIPMAP_LINEAR")
             }),
+            night_sky_texture: new Material(new defs.Textured_Phong(), {
+                color: hex_color("#000000"),
+                ambient: .5, diffusivity: 0.9, specularity: 0.1,
+                texture: new Texture("assets/starry.jpg", "LINEAR_MIPMAP_LINEAR")
+            }),
             ground: new Material(new defs.Textured_Phong(), {
                 color: hex_color("#000000"),
                 ambient: 1, diffusivity: 0.1, specularity: 0.1,
                 texture: new Texture("assets/grass.jpg", "LINEAR_MIPMAP_LINEAR")
+            }),
+            fire_texture: new Material(new defs.Textured_Phong(), {
+                color: hex_color("#000000"),
+                ambient: .5, diffusivity: 1, specularity: 1,
+                texture: new Texture("assets/Fire.gif", "LINEAR_MIPMAP_LINEAR")
             }),
             archer: new Material(new defs.Phong_Shader(),
                 {ambient: 1.0, diffusivity: .8, color: hex_color("#f7b96d")}),
@@ -66,19 +90,79 @@ class Base_Scene extends Scene {
                 {ambient: .3, diffusivity: .8, specularity: 1.0, color: hex_color('#ff0000')}),
             plastic: new Material(new defs.Phong_Shader(),
                 {ambient: .4, diffusivity: .6, specularity: 1.0, color: hex_color("#ffffff")}),
+            score0: new Material(new defs.Textured_Phong(), {
+                color: hex_color("#000000"),
+                ambient: 1, diffusivity: 0.1, specularity: 0.1,
+                texture: new Texture("assets/0.png","NEAREST")
+            }),
             score1: new Material(new defs.Textured_Phong(), {
                 color: hex_color("#000000"),
                 ambient: 1, diffusivity: 0.1, specularity: 0.1,
                 texture: new Texture("assets/1.png","NEAREST")
+            }),
+            score2: new Material(new defs.Textured_Phong(), {
+                color: hex_color("#000000"),
+                ambient: 1, diffusivity: 0.1, specularity: 0.1,
+                texture: new Texture("assets/2.png","NEAREST")
+            }),
+            score3: new Material(new defs.Textured_Phong(), {
+                color: hex_color("#000000"),
+                ambient: 1, diffusivity: 0.1, specularity: 0.1,
+                texture: new Texture("assets/3.png","NEAREST")
+            }),
+            score4: new Material(new defs.Textured_Phong(), {
+                color: hex_color("#000000"),
+                ambient: 1, diffusivity: 0.1, specularity: 0.1,
+                texture: new Texture("assets/4.png","NEAREST")
+            }),
+            score5: new Material(new defs.Textured_Phong(), {
+                color: hex_color("#000000"),
+                ambient: 1, diffusivity: 0.1, specularity: 0.1,
+                texture: new Texture("assets/5.png","NEAREST")
+            }),
+            score6: new Material(new defs.Textured_Phong(), {
+                color: hex_color("#000000"),
+                ambient: 1, diffusivity: 0.1, specularity: 0.1,
+                texture: new Texture("assets/6.png","NEAREST")
+            }),
+            score7: new Material(new defs.Textured_Phong(), {
+                color: hex_color("#000000"),
+                ambient: 1, diffusivity: 0.1, specularity: 0.1,
+                texture: new Texture("assets/7.png","NEAREST")
+            }),
+            score8: new Material(new defs.Textured_Phong(), {
+                color: hex_color("#000000"),
+                ambient: 1, diffusivity: 0.1, specularity: 0.1,
+                texture: new Texture("assets/8.png","NEAREST")
+            }),
+            score9: new Material(new defs.Textured_Phong(), {
+                color: hex_color("#000000"),
+                ambient: 1, diffusivity: 0.1, specularity: 0.1,
+                texture: new Texture("assets/9.png","NEAREST")
+            }),
+            score10: new Material(new defs.Textured_Phong(), {
+                color: hex_color("#000000"),
+                ambient: 1, diffusivity: 0.1, specularity: 0.1,
+                texture: new Texture("assets/10.png","NEAREST")
             }),
 
         };
         
         // The white material and basic shader are used for drawing the outline.
         this.white = new Material(new defs.Basic_Shader());
-	this.attached = 0; //initial camera value
+	    this.attached = 0; //initial camera value
         this.cam = "Yes"; //free cam or no 
         this.arrow_power=0;
+
+        // sky bool
+        this.sky = true;
+        this.sun_coef = Math.PI * (0.03);
+
+        // particle array
+        this.particles = new Array();
+        for(let i = 0; i < 30; i++) {
+            this.particles.push(new model_defs.Particle(Mat4.identity(), 0.0, false));
+        }
     }
 
     display(context, program_state) {
@@ -92,7 +176,7 @@ class Base_Scene extends Scene {
             program_state.set_camera(Mat4.translation(0, 0, -30));
         }
         program_state.projection_transform = Mat4.perspective(
-            Math.PI / 4, context.width / context.height, 1, 100);
+            Math.PI / 4, context.width / context.height, 1, 1000);
 
         // *** Lights: *** Values of vector or point lights.
         const light_position = vec4(0, 5, 5, 1);
@@ -318,7 +402,7 @@ export class FinalProject extends Base_Scene {
         this.gameobjects = [];                               // List of GameObjects in scene       
         this.pow_multiplier = 1;
         this.inc = 1;
-        
+        this.score =0;
         // Special GameObjects that require specific reference
         this.bow;
         this.pitch_joint;
@@ -336,7 +420,7 @@ export class FinalProject extends Base_Scene {
 
     shoot_arrow(shoot_direction_transform, power)
     {
-        let arrow = this.spawn_gameObject(this.shapes.arrow, shoot_direction_transform.model_transform, [new components.GravityTest2()], this.materials.arrow);
+        let arrow = this.spawn_gameObject(this.shapes.arrow, shoot_direction_transform.model_transform, [new components.GravityTest2(power)], this.materials.arrow);
     }
 
     powerAdj() {
@@ -351,8 +435,14 @@ export class FinalProject extends Base_Scene {
             this.inc = 1;
         }
         else if (this.pow_multiplier > 100){
-            this.pow_multiplier = 100;
-            this.inc = 0;
+            if(this.pow_multiplier == 105){
+                this.pow_multiplier = 95;
+                this.inc = 0;
+            }
+            else{
+                this.pow_multiplier = 100;
+                this.inc = 0;
+            } 
         }
     }
     
@@ -415,13 +505,13 @@ export class FinalProject extends Base_Scene {
         this.new_line();
         const pow_controls = this.control_panel.appendChild(document.createElement("span"));
             //speed_controls.style.margin = "30px";
-            this.key_triggered_button("POWER", ["p"], this.powerAdj, "#add8e6", () => this.inc=1, undefined, pow_controls);
+            this.key_triggered_button("POWER", ["p"], this.powerAdj, "#add8e6", undefined, undefined, pow_controls);
             this.live_string(box => {
                 box.textContent = "Arrow Power: " + this.pow_multiplier.toFixed(2)
             }, pow_controls);
                 this.new_line();
         this.key_triggered_button("SHOOT!", ["Enter"],
-                () => this.shoot_arrow(this.bow.transform, 0.5)
+                () => this.shoot_arrow(this.bow.transform, this.pow_multiplier.toFixed(2))
                     
                 , "#ff0000");
     }
@@ -429,38 +519,112 @@ export class FinalProject extends Base_Scene {
     calcDist(a, b){
         return Math.sqrt(Math.pow(a[1][3] - b[1][3], 2) + Math.pow(a[2][3] - b[2][3], 2));
     }
-
-    updateGameObject(a, targ, t, dt){
-        
-        if(a.transform.model_transform[0][3] > targ[0][3] - 15 && this.calcDist(a.transform.model_transform, targ) < 20){
+    
+    updateGameObject(a, targ, t, dt, recent){
+        let radius = 20;
+        let distCheck = this.calcDist(a.transform.model_transform, targ) < radius;
+        let modelCheck = a.transform.model_transform[0][3] > targ[0][3];
+        // console.log(a.Transform);
+        // console.log(a.transform.local_transform);
+        if(modelCheck&&distCheck){
             a.update(0,0);
+            if(recent){
+                this.score=this.scoreFinder(a,targ,radius);
+            }
         }
         else{
             a.update(t, dt);
         }
+        if(!distCheck&&modelCheck&&recent){ //doesn't hit target, has passed it
+            this.score=0;
+        }
     }
+
+    scoreFinder(a, targ,radius){
+        let pos = this.calcDist(a.transform.model_transform, targ)
+        return Math.trunc((radius-pos)/(radius/10)+0.999);
+    }
+    
     
     display(context, program_state) {
         super.display(context, program_state);
         
         const t = program_state.animation_time / 1000, dt = program_state.animation_delta_time / 1000;
 
+        // fire
+        let fire_transform = Mat4.identity();
+        fire_transform = fire_transform.times(Mat4.translation(t, 10, 0));
+        this.shapes.fire.draw(context, program_state, fire_transform, this.materials.fire_texture);
+
+        // day/night cycle
+        let period = (2 * Math.PI) / this.sun_coef;
+        if(t % (period) < period/2) {
+            this.sky = true;
+        }
+        else
+            this.sky = false;
+
+        // sky
+        let sky_transform = Mat4.identity();
+        sky_transform = sky_transform.times(Mat4.scale(500, 500, 500));
+        if(this.sky)
+            this.shapes.sky.draw(context, program_state, sky_transform, this.materials.sky_texture);
+        else 
+            this.shapes.sky.draw(context, program_state, sky_transform, this.materials.night_sky_texture);
+
+        // ground
+        let ground_transform = Mat4.identity();
+        ground_transform = ground_transform.times(Mat4.scale(500, 1, 500))
+            .times(Mat4.translation(0, -25, 0));
+        this.shapes.ground.draw(context, program_state, ground_transform, this.materials.ground);
+
         if(this.bow == null)
             this.initializeArcher();
 
         // sun
         let sun_transform = Mat4.identity();
-        let a = 3;
-        let b = 1.5;
-        let w = (1/3) * Math.PI; 
-        let sun_radius = a + b*Math.sin(w*t);
-        let color_gradient = 0.5 + 0.5*Math.sin(w * t)
-        let sun_color = vec4(1, color_gradient, color_gradient, 1);
-        sun_transform = sun_transform.times(Mat4.scale(sun_radius, sun_radius, sun_radius));
-        program_state.lights =  [new Light(vec4(0, 0, 0, 1), color(1, color_gradient, color_gradient, 1), 10 ** sun_radius)];
+        sun_transform = sun_transform.times(Mat4.rotation(this.sun_coef * t, 1, 0, 0))
+               .times(Mat4.translation(0, 0, -250));
+        
+        let sun_color = vec4(1, 1, 1, 1);
         let sun_material = this.materials.sun;
         sun_material = sun_material.override({color:sun_color});
+        if(this.sky) {
+            program_state.lights =  [new Light(sun_transform.transposed()[3], color(1, 1, 1, 1), 10 ** 10)];
+            this.shapes.sun.draw(context, program_state, sun_transform, sun_material);
+        }
 
+        // moon
+        let moon_transform = Mat4.identity();
+        moon_transform = moon_transform.times(Mat4.rotation(this.sun_coef * t, 1, 0, 0))
+               .times(Mat4.translation(0, 0, 250));
+        let moon_color = vec4(1, 1, 1, 1);
+        let moon_material = this.materials.sun;
+        moon_material = moon_material.override({color:moon_color});
+
+        if(!this.sky) {
+            program_state.lights =  [new Light(moon_transform.transposed()[3], color(1, 1, 1, 1), 10 ** 3)];
+            this.shapes.sun.draw(context, program_state, moon_transform, moon_material);
+        }
+
+        // particle generation
+        for(let i = 0; i < 30; i++) {
+            if(this.particles[i].init == false) {
+                this.particles[i].init = true;
+                this.particles[i].transformation = fire_transform;
+            }
+            else {
+                if(t > this.particles[i].end_time) {
+                    this.particles.splice(i, 1);
+                    this.particles.push(new model_defs.Particle(fire_transform, t, true))
+                }
+                this.particles[i].transformation = this.particles[i].transformation.times(Mat4.translation(this.particles[i].vel_x * dt, (Math.random() + 3 + 3) * dt, this.particles[i].vel_z * dt));
+                this.shapes.fire_particle.draw(context, program_state, this.particles[i].transformation, this.materials.fire_texture);
+            }
+        }
+
+        program_state.lights.push(new Light(fire_transform.transposed()[3], color(1, 1, 1, 1), 10 ** 10));
+        
         // move
         let arrow_transform = Mat4.identity();
         arrow_transform = arrow_transform.times(Mat4.translation(t, 0, -10));
@@ -495,14 +659,49 @@ export class FinalProject extends Base_Scene {
 
         //UI score
         let score_transform = Mat4.identity().times(Mat4.translation(15,0,12)).times(Mat4.scale(3,3,3));
-        let score_transform2 = Mat4.inverse(program_state.camera_inverse).times(Mat4.translation(14,-8,-30)).times(Mat4.rotation(t, 0, 1, 0)).times(Mat4.rotation(0.2*Math.PI, 0, 1, 0));
-        this.shapes.cube.draw(context, program_state, score_transform2, this.materials.score1);
+        let score_transform2 = Mat4.inverse(program_state.camera_inverse).times(Mat4.translation(20,0,-30)).times(Mat4.rotation(t, 0, 1, 0)).times(Mat4.rotation(0.2*Math.PI, 0, 1, 0));
+        switch (this.score) {
+          case 1:
+            this.shapes.cube.draw(context, program_state, score_transform2, this.materials.score1);
+            break;
+          case 2:
+            this.shapes.cube.draw(context, program_state, score_transform2, this.materials.score2);
+            break;
+          case 3:
+          this.shapes.cube.draw(context, program_state, score_transform2, this.materials.score3);
+            break;
+          case 4:
+          this.shapes.cube.draw(context, program_state, score_transform2, this.materials.score4);
+            break;
+          case 5:
+          this.shapes.cube.draw(context, program_state, score_transform2, this.materials.score5);
+            break;
+          case 6:
+          this.shapes.cube.draw(context, program_state, score_transform2, this.materials.score6);
+            break;
+          case 7:
+          this.shapes.cube.draw(context, program_state, score_transform2, this.materials.score7);
+            break;
+          case 8:
+          this.shapes.cube.draw(context, program_state, score_transform2, this.materials.score8);
+            break;
+          case 9:
+          this.shapes.cube.draw(context, program_state, score_transform2, this.materials.score9);
+            break;
+          case 10:
+          this.shapes.cube.draw(context, program_state, score_transform2, this.materials.score10);
+            break;
+          default:
+            this.shapes.cube.draw(context, program_state, score_transform2, this.materials.score0);
+        }
 
         // Update each GameObject in the scene then draw it
         for(let i = 0; i < this.gameobjects.length; i++)
         {
-            
-            this.updateGameObject(this.gameobjects[i], target_transform, t, dt);
+            if (i == this.gameobjects.length-1)
+                this.updateGameObject(this.gameobjects[i], target_transform, t, dt, true);
+            else
+                this.updateGameObject(this.gameobjects[i], target_transform, t, dt, false);
             
             this.gameobjects[i].draw(context, program_state);
 
