@@ -408,6 +408,7 @@ export class FinalProject extends Base_Scene {
         this.pitch_joint;
         this.yaw_joint;
         this.archer_fps_cam;
+        this.target_transform;
     }
 
     // Make a special function that spawns in a GameObject into the scene (instantiates a GameObject using a "prefab")
@@ -469,31 +470,44 @@ export class FinalProject extends Base_Scene {
         this.pitch_joint.addChild(this.archer_fps_cam);
         
     }
+    
+    move_target_back(){
+        this.target_transform[0][3] += 5;
+    }
+
+    move_target_closer(){
+        this.target_transform[0][3] -= 5;
+    }
+
+    move_target_up(){
+        this.target_transform[1][3] += 5;
+    }
+
+    move_target_down(){
+        this.target_transform[1][3] -= 5;
+    }
+
+    move_target_left(){
+        this.target_transform[2][3] -= 5;
+    }
+
+    move_target_right(){
+        this.target_transform[2][3] += 5;
+    }
 
     make_control_panel() {
         // Draw the scene's buttons, setup their actions and keyboard shortcuts, and monitor live measurements.
-        this.key_triggered_button("Spawn Arrow", ["1"], () => this.spawn_gameObject(this.shapes.arrow,
-         Mat4.identity().times(Mat4.translation(0,0,-10)),[new components.Straight()], this.materials.arrow));
-        this.key_triggered_button("Spawn Arrow Edge Top", ["2"], () => this.spawn_gameObject(this.shapes.arrow,
-         Mat4.identity().times(Mat4.translation(0,0,-10)),[new components.InsideTop()], this.materials.arrow));
-        this.key_triggered_button("Spawn Arrow Outside Top", ["3"], () => this.spawn_gameObject(this.shapes.arrow,
-         Mat4.identity().times(Mat4.translation(0,0,-10)),[new components.Outside()], this.materials.arrow));
-        this.key_triggered_button("Spawn Arrow Outside Right", ["4"], () => this.spawn_gameObject(this.shapes.arrow,
-         Mat4.identity().times(Mat4.translation(0,0,-10)),[new components.OutsideRight()], this.materials.arrow));
-        this.key_triggered_button("Spawn Arrow Edge Right", ["5"], () => this.spawn_gameObject(this.shapes.arrow,
-         Mat4.identity().times(Mat4.translation(0,0,-10)),[new components.EdgeRight()], this.materials.arrow));
-        
+        this.key_triggered_button("Move Target Back", ["1"], () => this.move_target_back());
+        this.key_triggered_button("Move Target Closer", ["2"], () => this.move_target_closer());
+        this.key_triggered_button("Move Target Up", ["3"], () => this.move_target_up());
+        this.key_triggered_button("Move Target Down", ["4"], () => this.move_target_down());
+        this.key_triggered_button("Move Target Left", ["5"], () => this.move_target_left());
+        this.key_triggered_button("Move Target Right", ["6"], () => this.move_target_right());
+
         this.key_triggered_button("Aim Left", ["j"], () => this.yaw_joint.rotate(0, Math.PI/30, 0));
         this.key_triggered_button("Aim Up", ["i"], () => this.pitch_joint.rotate(0, 0, Math.PI/30));
         this.key_triggered_button("Aim Down", ["k"], () => this.pitch_joint.rotate(0, 0, -Math.PI/30));
         this.key_triggered_button("Aim Right", ["l"], () => this.yaw_joint.rotate(0, -Math.PI/30, 0));
-
-        this.key_triggered_button("Spawn Arrow Top Right", ["6"], () => this.spawn_gameObject(this.shapes.arrow,
-         Mat4.identity().times(Mat4.translation(0,0,-10)),[new components.TopRight()], this.materials.arrow));
-        this.key_triggered_button("Spawn Arrow Gravity Test", ["7"], () => this.spawn_gameObject(this.shapes.arrow,
-         Mat4.identity().times(Mat4.translation(0,0,-10)),[new components.GravityTest()], this.materials.arrow));
-        this.key_triggered_button("Spawn Arrow Gravity Test", ["8"], () => this.spawn_gameObject(this.shapes.arrow,
-         Mat4.identity().times(Mat4.translation(0,0,-10)),[new components.GravityTest2()], this.materials.arrow));
 
         this.new_line();
         this.new_line();
@@ -629,13 +643,14 @@ export class FinalProject extends Base_Scene {
         let arrow_transform = Mat4.identity();
         arrow_transform = arrow_transform.times(Mat4.translation(t, 0, -10));
       
-
-        // target
-        let target_transform = Mat4.identity();
-        target_transform = target_transform.times(Mat4.rotation(Math.PI/2, 0, 1, 0))
-            .times(Mat4.translation(10, 0, 50));
-        this.shapes.target.draw(context, program_state, target_transform, this.materials.target);
-
+        if(this.target_transform == null){
+            this.target_transform = Mat4.identity();
+            this.target_transform = this.target_transform.times(Mat4.rotation(Math.PI/2, 0, 1, 0))
+                .times(Mat4.translation(10, 0, 50));
+        }
+        
+        this.shapes.target.draw(context, program_state, this.target_transform, this.materials.target);
+        
         
         //UI powerbar
         let bar_transform = Mat4.identity();
@@ -699,9 +714,9 @@ export class FinalProject extends Base_Scene {
         for(let i = 0; i < this.gameobjects.length; i++)
         {
             if (i == this.gameobjects.length-1)
-                this.updateGameObject(this.gameobjects[i], target_transform, t, dt, true);
+                this.updateGameObject(this.gameobjects[i], this.target_transform, t, dt, true);
             else
-                this.updateGameObject(this.gameobjects[i], target_transform, t, dt, false);
+                this.updateGameObject(this.gameobjects[i], this.target_transform, t, dt, false);
             
             this.gameobjects[i].draw(context, program_state);
 

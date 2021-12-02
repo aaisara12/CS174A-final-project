@@ -109,7 +109,7 @@ const GravityTest2 = components.GravityTest2 =
                 this.gameObject.dy += .005;
                 // pass in power variable from user input, this is just arbitrary rn
                 // var POWER = .6;
-                let scaled_power = Math.pow(this.power, .45) * .1;
+                let scaled_power = Math.pow(this.power, .5) * .1;
                 this.gameObject.transform.translate(scaled_power, -this.gameObject.dy , .1);
                 // this.gameObject.transform.rotation(0,1,0);
                 // console.log(scaled_power);
