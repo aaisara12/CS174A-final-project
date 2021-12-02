@@ -440,6 +440,7 @@ export class FinalProject extends Base_Scene {
     shoot_fire_arrow(shoot_direction_transform, power)
     {
         let arrow = this.spawn_gameObject(this.shapes.arrow, shoot_direction_transform.model_transform, [new components.Projectile(power, vec3(0, 0, 0))], this.materials.arrow);
+        this.target_moved = false;
     }
     
     powerAdj() {
@@ -577,7 +578,7 @@ export class FinalProject extends Base_Scene {
 
         if(modelCheck&&distCheck){
             a.update(0,0);
-            if(recent){
+            if(recent && this.target_moved == false){
                 let newscore = this.scoreFinder(a,targ,radius);
                 if(newscore != this.score && newscore >= 9)
                     this.victory.play();
