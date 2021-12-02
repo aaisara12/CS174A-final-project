@@ -416,6 +416,7 @@ export class FinalProject extends Base_Scene {
         this.yaw_joint;
         this.archer_fps_cam;
         this.target_transform;
+        this.target_moved = false;
     }
 
     // Make a special function that spawns in a GameObject into the scene (instantiates a GameObject using a "prefab")
@@ -429,6 +430,7 @@ export class FinalProject extends Base_Scene {
     shoot_arrow(shoot_direction_transform, power)
     {
         let arrow = this.spawn_gameObject(this.shapes.arrow, shoot_direction_transform.model_transform, [new components.Projectile(power, vec3(0, 0, 0))], this.materials.arrow);
+        this.target_moved = false;
     }
 
     shoot_fire_arrow(shoot_direction_transform, power)
@@ -485,26 +487,32 @@ export class FinalProject extends Base_Scene {
     
     move_target_back(){
         this.target_transform[0][3] += 5;
+        this.target_moved = true;
     }
 
     move_target_closer(){
         this.target_transform[0][3] -= 5;
+        this.target_moved = true;
     }
 
     move_target_up(){
         this.target_transform[1][3] += 5;
+        this.target_moved = true;
     }
 
     move_target_down(){
         this.target_transform[1][3] -= 5;
+        this.target_moved = true;
     }
 
     move_target_left(){
         this.target_transform[2][3] -= 5;
+        this.target_moved = true;
     }
 
     move_target_right(){
         this.target_transform[2][3] += 5;
+        this.target_moved = true;
     }
 
     make_control_panel() {
@@ -738,7 +746,7 @@ export class FinalProject extends Base_Scene {
             else
                 this.updateGameObject(this.gameobjects[i], this.target_transform, t, dt, false);
             
-            if (i == this.gameobjects.length-1 || i == 0)
+            if ((i == this.gameobjects.length-1 && this.target_moved == false) || i == 0)
                 this.gameobjects[i].draw(context, program_state);
 
         }
