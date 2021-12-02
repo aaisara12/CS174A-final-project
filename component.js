@@ -128,8 +128,9 @@ const Projectile = components.Projectile =
         constructor(power)
         {
             super();
-            this.gravity = -9.8;
+            this.gravity = -50;
             this.power = power;
+            this.windForce = vec3(0, 0, 0);
         }
 
         start()
@@ -141,6 +142,7 @@ const Projectile = components.Projectile =
         update(time, deltaTime)
         {
             this.curr_velocity[1] += this.gravity * deltaTime;
+            this.curr_velocity = this.curr_velocity.plus(this.windForce.times(deltaTime));
             this.gameObject.transform.translate(this.curr_velocity[0] * deltaTime, this.curr_velocity[1] * deltaTime, this.curr_velocity[2] * deltaTime, false);
             this.gameObject.transform.setRight(this.curr_velocity.normalized());
         }
