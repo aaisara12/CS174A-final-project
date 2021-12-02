@@ -461,7 +461,7 @@ export class FinalProject extends Base_Scene {
         this.archer_fps_cam = new Transform(this.pitch_joint.model_transform); 
         // Point/Position the camera so that it looks down the direction of the bow
         this.archer_fps_cam.translate(-20, 0, 0);     
-        this.archer_fps_cam.rotateLocal(0, -2*Math.PI/4, 0);
+        this.archer_fps_cam.rotate(0, -2*Math.PI/4, 0);
 
 
         this.yaw_joint.addChild(this.pitch_joint);
@@ -483,10 +483,10 @@ export class FinalProject extends Base_Scene {
         this.key_triggered_button("Spawn Arrow Edge Right", ["5"], () => this.spawn_gameObject(this.shapes.arrow,
          Mat4.identity().times(Mat4.translation(0,0,-10)),[new components.EdgeRight()], this.materials.arrow));
         
-        this.key_triggered_button("Aim Left", ["j"], () => this.yaw_joint.rotateLocal(0, Math.PI/30, 0));
-        this.key_triggered_button("Aim Up", ["i"], () => this.pitch_joint.rotateLocal(0, 0, Math.PI/30));
-        this.key_triggered_button("Aim Down", ["k"], () => this.pitch_joint.rotateLocal(0, 0, -Math.PI/30));
-        this.key_triggered_button("Aim Right", ["l"], () => this.yaw_joint.rotateLocal(0, -Math.PI/30, 0));
+        this.key_triggered_button("Aim Left", ["j"], () => this.yaw_joint.rotate(0, Math.PI/30, 0));
+        this.key_triggered_button("Aim Up", ["i"], () => this.pitch_joint.rotate(0, 0, Math.PI/30));
+        this.key_triggered_button("Aim Down", ["k"], () => this.pitch_joint.rotate(0, 0, -Math.PI/30));
+        this.key_triggered_button("Aim Right", ["l"], () => this.yaw_joint.rotate(0, -Math.PI/30, 0));
 
         this.key_triggered_button("Spawn Arrow Top Right", ["6"], () => this.spawn_gameObject(this.shapes.arrow,
          Mat4.identity().times(Mat4.translation(0,0,-10)),[new components.TopRight()], this.materials.arrow));
