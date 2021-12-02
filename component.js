@@ -1,3 +1,9 @@
+import {defs, tiny} from '../examples/common.js';
+
+const {
+    Vector, Vector3, vec, vec3, vec4, color, hex_color, Matrix, Mat4, Light, Shape, Material, Scene,
+} = tiny;
+
 const components = {};
 
 export {components};
@@ -119,11 +125,12 @@ const GravityTest2 = components.GravityTest2 =
 
 const Projectile = components.Projectile =
     class Projectile extends Component{
-        constructor(power)
+        constructor(power, windForce)
         {
             super();
-            this.gravity = -9.8;
+            this.gravity = -50;
             this.power = power;
+            this.windForce = windForce;
         }
 
         start()
@@ -135,6 +142,8 @@ const Projectile = components.Projectile =
         update(time, deltaTime)
         {
             this.curr_velocity[1] += this.gravity * deltaTime;
+            this.curr_velocity = this.curr_velocity.plus(this.windForce.times(deltaTime));
             this.gameObject.transform.translate(this.curr_velocity[0] * deltaTime, this.curr_velocity[1] * deltaTime, this.curr_velocity[2] * deltaTime, false);
+            this.gameObject.transform.setRight(this.curr_velocity.normalized());
         }
     }

@@ -87,6 +87,30 @@ class Transform
 
         this.transformLocal(local_rotation);
     }
+    
+
+    
+    // Rotate the Transform such that its right-pointing vector is repositioned in the direction of the vector provided
+    setRight(newRight)
+    {
+        let newForward = newRight.cross(this.up()).normalized();
+        let newUp = newForward.cross(newRight).normalized();
+
+        this.setRotationMatrix(newRight, newUp, newForward);
+    }
+
+    // Dangerous function that overrides the current rotation values of the world position matrix for this Transform
+    setRotationMatrix(u_hat, v_hat, w_hat)
+    {
+        let pos = this.position();
+        let newMat = new Mat4([u_hat[0], v_hat[0], w_hat[0], pos[0]],
+                              [u_hat[1], v_hat[1], w_hat[1], pos[1]],
+                              [u_hat[2], v_hat[2], w_hat[2], pos[2]],
+                              [0, 0, 0, 1]);
+
+        this.local_transform = newMat;
+        this.refreshModelMatrix();
+    }
 
     position()
     {
@@ -101,6 +125,11 @@ class Transform
     right()
     {
         return vec3(this.model_transform[0][0], this.model_transform[1][0], this.model_transform[2][0]);
+    }
+
+    up()
+    {
+        return vec3(this.model_transform[0][1], this.model_transform[1][1], this.model_transform[2][1]);
     }
 
 
