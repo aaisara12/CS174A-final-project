@@ -22,10 +22,12 @@ class Base_Scene extends Scene {
         // audio
         this.bgm = new Audio();
         this.bgm.src = 'assets/battle.mp3';
+        this.bgm.volume = 0.2;
         this.arrow_shot = new Audio();
         this.arrow_shot.src = 'assets/bow_shoot.mp3';
         this.hit = new Audio();
         this.hit.src = 'assets/hitmarker.mp3';
+        //this.hit.loop = false;
         this.victory = new Audio();
         this.victory.src = 'assets/victory!.mp3';
         this.fail = new Audio();
@@ -56,7 +58,7 @@ class Base_Scene extends Scene {
             bow: new Material(new defs.Phong_Shader(),
                 {ambient: .3, diffusivity: .8, color: hex_color('#fff8dc')}),
             target: new Material(new model_defs.Target_Shader(),
-                {ambient: .3, diffusivity: .8}),
+                {ambient: .3, diffusivity: .8, specularity: 0.7}),
             board: new Material(new defs.Phong_Shader(),
                 {ambient: .3, diffusivity: .8, color: hex_color('#fff8dc')}),
             sky_texture: new Material(new defs.Textured_Phong(), {
@@ -162,6 +164,11 @@ class Base_Scene extends Scene {
         this.particles = new Array();
         for(let i = 0; i < 30; i++) {
             this.particles.push(new model_defs.Particle(Mat4.identity(), 0.0, false));
+        }
+
+        this.burning = {
+            'on': false,
+            'transform': Mat4.identity()
         }
     }
 
@@ -424,6 +431,11 @@ export class FinalProject extends Base_Scene {
         let arrow = this.spawn_gameObject(this.shapes.arrow, shoot_direction_transform.model_transform, [new components.Projectile(power, vec3(0, 0, 0))], this.materials.arrow);
     }
 
+    shoot_fire_arrow(shoot_direction_transform, power)
+    {
+        let arrow = this.spawn_gameObject(this.shapes.arrow, shoot_direction_transform.model_transform, [new components.Projectile(power, vec3(0, 0, 0))], this.materials.arrow);
+    }
+    
     powerAdj() {
         if(this.inc)
             this.pow_multiplier += 5;
@@ -525,9 +537,10 @@ export class FinalProject extends Base_Scene {
             }, pow_controls);
                 this.new_line();
         this.key_triggered_button("SHOOT!", ["Enter"],
-                () => this.shoot_arrow(this.bow.transform, this.pow_multiplier.toFixed(2))
-                    
-                , "#ff0000");
+                () => {this.shoot_arrow(this.bow.transform, this.pow_multiplier.toFixed(2)); this.arrow_shot.play(); this.burning.on = false;} , "#ff0000");
+        this.key_triggered_button("BGM", ["m"], () => this.bgm.play());
+        this.key_triggered_button("SHOOT! FIRE! ARROW!", ["n"], () => {this.shoot_fire_arrow(this.bow.transform, this.pow_multiplier.toFixed(2)); this.arrow_shot.play(); this.burning.on = true;} , "#ff0000");
+
     }
 
     calcDist(a, b){
@@ -538,9 +551,15 @@ export class FinalProject extends Base_Scene {
         let radius = 20;
         let distCheck = this.calcDist(a.transform.model_transform, targ) < radius;
         let modelCheck = a.transform.model_transform[0][3] > targ[0][3] && a.transform.model_transform[0][3] < targ[0][3]+5;
+
         if(modelCheck&&distCheck){
             a.update(0,0);
             if(recent){
+                let newscore = this.scoreFinder(a,targ,radius);
+                if(newscore != this.score && newscore >= 9)
+                    this.victory.play();
+                else if (newscore != this.score && newscore < 9)
+                    this.hit.play();
                 this.score=this.scoreFinder(a,targ,radius);
             }
         }
@@ -549,6 +568,7 @@ export class FinalProject extends Base_Scene {
         }
         if(!distCheck&&modelCheck&&recent){ //doesn't hit target, has passed it
             this.score=0;
+            this.fail.play();
         }
     }
 
@@ -562,11 +582,6 @@ export class FinalProject extends Base_Scene {
         super.display(context, program_state);
         
         const t = program_state.animation_time / 1000, dt = program_state.animation_delta_time / 1000;
-
-        // fire
-        let fire_transform = Mat4.identity();
-        fire_transform = fire_transform.times(Mat4.translation(t, 10, 0));
-        this.shapes.fire.draw(context, program_state, fire_transform, this.materials.fire_texture);
 
         // day/night cycle
         let period = (2 * Math.PI) / this.sun_coef;
@@ -618,24 +633,26 @@ export class FinalProject extends Base_Scene {
             program_state.lights =  [new Light(moon_transform.transposed()[3], color(1, 1, 1, 1), 10 ** 3)];
             this.shapes.sun.draw(context, program_state, moon_transform, moon_material);
         }
-
+        
         // particle generation
-        for(let i = 0; i < 30; i++) {
-            if(this.particles[i].init == false) {
-                this.particles[i].init = true;
-                this.particles[i].transformation = fire_transform;
-            }
-            else {
-                if(t > this.particles[i].end_time) {
-                    this.particles.splice(i, 1);
-                    this.particles.push(new model_defs.Particle(fire_transform, t, true))
+        if(this.burning.on == true) {
+            for(let i = 0; i < 30; i++) {
+                if(this.particles[i].init == false) {
+                    this.particles[i].init = true;
+                    this.particles[i].transformation = this.burning.transform;
                 }
-                this.particles[i].transformation = this.particles[i].transformation.times(Mat4.translation(this.particles[i].vel_x * dt, (Math.random() + 3 + 3) * dt, this.particles[i].vel_z * dt));
-                this.shapes.fire_particle.draw(context, program_state, this.particles[i].transformation, this.materials.fire_texture);
+                else {
+                    if(t > this.particles[i].end_time) {
+                        this.particles.splice(i, 1);
+                        this.particles.push(new model_defs.Particle(this.burning.transform, t, true))
+                    }
+                    this.particles[i].transformation = this.particles[i].transformation.times(Mat4.translation(this.particles[i].vel_x * dt, (Math.random() + 3 + 3) * dt, this.particles[i].vel_z * dt));
+                    this.shapes.fire_particle.draw(context, program_state, this.particles[i].transformation, this.materials.fire_texture);
+                }
             }
         }
 
-        program_state.lights.push(new Light(fire_transform.transposed()[3], color(1, 1, 1, 1), 10 ** 10));
+        
         
         // move
         let arrow_transform = Mat4.identity();
@@ -711,8 +728,13 @@ export class FinalProject extends Base_Scene {
         // Update each GameObject in the scene then draw it
         for(let i = 0; i < this.gameobjects.length; i++)
         {
-            if (i == this.gameobjects.length-1)
+            if (i == this.gameobjects.length-1) {
                 this.updateGameObject(this.gameobjects[i], this.target_transform, t, dt, true);
+                if(this.burning.on == true) {
+                    this.burning.transform = this.gameobjects[i].transform.model_transform;
+                    program_state.lights.push(new Light(this.gameobjects[i].transform.model_transform.transposed()[3], color(1, 1, 1, 1), 10 ** 10));
+                }
+            }
             else
                 this.updateGameObject(this.gameobjects[i], this.target_transform, t, dt, false);
             
