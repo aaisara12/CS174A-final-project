@@ -100,12 +100,19 @@ const GravityTest = components.GravityTest =
 
 const GravityTest2 = components.GravityTest2 =
     class GravityTest2 extends Component{
+        constructor(power){
+            super();
+            this.power = power;
+        }
         update(time, deltaTime){
             if(time != 0 && deltaTime != 0){
                 this.gameObject.dy += .005;
                 // pass in power variable from user input, this is just arbitrary rn
-                var POWER = .6;
-                this.gameObject.transform.translate(POWER, -this.gameObject.dy , .1);
+                // var POWER = .6;
+                let scaled_power = Math.pow(this.power, .45) * .1;
+                this.gameObject.transform.translate(scaled_power, -this.gameObject.dy , .1);
+                // this.gameObject.transform.rotation(0,1,0);
+                // console.log(scaled_power);
             }
         }
     }

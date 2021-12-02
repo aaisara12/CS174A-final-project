@@ -420,7 +420,7 @@ export class FinalProject extends Base_Scene {
 
     shoot_arrow(shoot_direction_transform, power)
     {
-        let arrow = this.spawn_gameObject(this.shapes.arrow, shoot_direction_transform.model_transform, [new components.Projectile(power)], this.materials.arrow);
+        let arrow = this.spawn_gameObject(this.shapes.arrow, shoot_direction_transform.model_transform, [new components.GravityTest2(power)], this.materials.arrow);
     }
 
     powerAdj() {
@@ -435,8 +435,14 @@ export class FinalProject extends Base_Scene {
             this.inc = 1;
         }
         else if (this.pow_multiplier > 100){
-            this.pow_multiplier = 100;
-            this.inc = 0;
+            if(this.pow_multiplier == 105){
+                this.pow_multiplier = 95;
+                this.inc = 0;
+            }
+            else{
+                this.pow_multiplier = 100;
+                this.inc = 0;
+            } 
         }
     }
     
@@ -499,13 +505,13 @@ export class FinalProject extends Base_Scene {
         this.new_line();
         const pow_controls = this.control_panel.appendChild(document.createElement("span"));
             //speed_controls.style.margin = "30px";
-            this.key_triggered_button("POWER", ["p"], this.powerAdj, "#add8e6", () => this.inc=1, undefined, pow_controls);
+            this.key_triggered_button("POWER", ["p"], this.powerAdj, "#add8e6", undefined, undefined, pow_controls);
             this.live_string(box => {
                 box.textContent = "Arrow Power: " + this.pow_multiplier.toFixed(2)
             }, pow_controls);
                 this.new_line();
         this.key_triggered_button("SHOOT!", ["Enter"],
-                () => this.shoot_arrow(this.bow.transform, 100)
+                () => this.shoot_arrow(this.bow.transform, this.pow_multiplier.toFixed(2))
                     
                 , "#ff0000");
     }
@@ -516,8 +522,10 @@ export class FinalProject extends Base_Scene {
     
     updateGameObject(a, targ, t, dt, recent){
         let radius = 20;
-        let distCheck = this.calcDist(a.transform.model_transform, targ) < radius
-        let modelCheck = a.transform.model_transform[0][3] > targ[0][3] - 15
+        let distCheck = this.calcDist(a.transform.model_transform, targ) < radius;
+        let modelCheck = a.transform.model_transform[0][3] > targ[0][3];
+        // console.log(a.Transform);
+        // console.log(a.transform.local_transform);
         if(modelCheck&&distCheck){
             a.update(0,0);
             if(recent){
@@ -534,7 +542,7 @@ export class FinalProject extends Base_Scene {
 
     scoreFinder(a, targ,radius){
         let pos = this.calcDist(a.transform.model_transform, targ)
-        return Math.trunc((radius-pos)/(radius/10)+0.5);
+        return Math.trunc((radius-pos)/(radius/10)+0.999);
     }
     
     
