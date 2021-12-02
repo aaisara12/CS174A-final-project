@@ -35,7 +35,6 @@ class Base_Scene extends Scene {
         this.fireworks.src = 'assets/fireworks.mp3';
         this.charge = new Audio();
         this.charge.src = 'assets/charge.mp3';
-
         this.shapes = {
             'sky': new defs.Subdivision_Sphere(4),
             'ground': new defs.Cube(),
@@ -49,7 +48,8 @@ class Base_Scene extends Scene {
             'outline':new model_defs.Cube_Outline(),
             'square': new defs.Square(),
             'fire': new model_defs.Emitter(),
-            'fire_particle': new model_defs.Particle()
+            'fire_particle': new model_defs.Particle(),
+            'axis': new defs.Axis_Arrows(),
         };
 
         // *** Materials
@@ -150,7 +150,7 @@ class Base_Scene extends Scene {
                 ambient: 1, diffusivity: 0.1, specularity: 0.1,
                 texture: new Texture("assets/10.png","NEAREST")
             }),
-
+            
         };
         
         // The white material and basic shader are used for drawing the outline.
@@ -420,6 +420,7 @@ export class FinalProject extends Base_Scene {
         this.archer_fps_cam;
         this.target_transform;
         this.target_moved = false;
+        this.windForce = vec3(1, -2, 3);
     }
 
     // Make a special function that spawns in a GameObject into the scene (instantiates a GameObject using a "prefab")
@@ -504,10 +505,30 @@ export class FinalProject extends Base_Scene {
 
     make_control_panel() {
         // Draw the scene's buttons, setup their actions and keyboard shortcuts, and monitor live measurements.
-        const wind_disp = this.control_panel.appendChild(document.createElement("span"));
         this.live_string(box => {
-                box.textContent = "Wind: " +  vec3(0, 0, 0)
-            }, wind_disp);
+                box.textContent = "Wind: "
+            });
+        this.new_line();
+        let y_dir = "Up: ";
+        if(this.windForce[1]<0)
+            y_dir = "Down: ";
+        this.live_string(box => {
+                box.textContent = y_dir +Math.abs(this.windForce[1])
+            });
+        this.new_line();
+        let x_dir = "Right: ";
+        if(this.windForce[1]<0)
+            x_dir = "Left: ";
+        this.live_string(box => {
+                box.textContent = x_dir + Math.abs(this.windForce[0])
+            });
+        this.new_line();
+        let z_dir = "Backwards: ";
+        if(this.windForce[1]<0)
+            z_dir = "Forwards: ";
+        this.live_string(box => {
+                box.textContent = z_dir + Math.abs(this.windForce[2])
+            });
         this.new_line();
         this.new_line();
         this.key_triggered_button("Move Target Back", ["1"], () => this.move_target_back());
@@ -541,7 +562,7 @@ export class FinalProject extends Base_Scene {
         //        () => {this.shoot_arrow(this.bow.transform, this.pow_multiplier.toFixed(2)); this.arrow_shot.play(); this.burning.on = false; this.pulled = false; } , "#ff0000");
         this.key_triggered_button("BGM", ["m"], () => this.bgm.play());
         this.key_triggered_button("SHOOT! FIRE! ARROW!", ["Enter"], () => { this.powerAdj(); this.pulled = true;this.burning.on = true;this.charge.play();} , 
-        "#ff0000",() => {this.shoot_fire_arrow(this.bow.transform, this.pow_multiplier); this.fireworks.play(); this.burning.on = false; this.pulled = false;this.pow_multiplier=1;});
+        "#ff0000",() => {this.shoot_fire_arrow(this.bow.transform, this.pow_multiplier); this.fireworks.play(); this.burning.on = true; this.pulled = false;this.pow_multiplier=1;});
 
     }
 
