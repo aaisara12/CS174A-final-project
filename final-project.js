@@ -412,7 +412,6 @@ export class FinalProject extends Base_Scene {
         
         this.gameobjects = [];                               // List of GameObjects in scene       
         this.pow_multiplier = 1;
-        this.inc = 1;
         this.score =0;
         // Special GameObjects that require specific reference
         this.bow;
@@ -443,26 +442,10 @@ export class FinalProject extends Base_Scene {
     }
     
     powerAdj() {
-        if(this.inc)
-            this.pow_multiplier += 5;
-        else
-            this.pow_multiplier -= 5;
-
-
-        if(this.pow_multiplier<1){
-            this.pow_multiplier = 1;
-            this.inc = 1;
-        }
-        else if (this.pow_multiplier > 100){
-            if(this.pow_multiplier == 105){
-                this.pow_multiplier = 95;
-                this.inc = 0;
-            }
-            else{
+        this.pow_multiplier += 5;
+        if (this.pow_multiplier > 100){
                 this.pow_multiplier = 100;
-                this.inc = 0;
             } 
-        }
     }
     
     
@@ -521,6 +504,12 @@ export class FinalProject extends Base_Scene {
 
     make_control_panel() {
         // Draw the scene's buttons, setup their actions and keyboard shortcuts, and monitor live measurements.
+        const wind_disp = this.control_panel.appendChild(document.createElement("span"));
+        this.live_string(box => {
+                box.textContent = "Wind: " +  vec3(0, 0, 0)
+            }, wind_disp);
+        this.new_line();
+        this.new_line();
         this.key_triggered_button("Move Target Back", ["1"], () => this.move_target_back());
         this.key_triggered_button("Move Target Closer", ["2"], () => this.move_target_closer());
         this.key_triggered_button("Move Target Up", ["3"], () => this.move_target_up());
@@ -541,17 +530,18 @@ export class FinalProject extends Base_Scene {
         this.key_triggered_button("Free Cam", ["h"], () => this.attached = () => "f");
         this.live_string(box => box.textContent = "Free Camera View?: " + this.cam);
         this.new_line();
-        const pow_controls = this.control_panel.appendChild(document.createElement("span"));
+        /*const pow_controls = this.control_panel.appendChild(document.createElement("span"));
             //speed_controls.style.margin = "30px";
             this.key_triggered_button("POWER", ["p"], () => {this.powerAdj(); this.charge.play(); this.pulled = true;}, "#add8e6", undefined, undefined, pow_controls);
             this.live_string(box => {
                 box.textContent = "Arrow Power: " + this.pow_multiplier.toFixed(2)
-            }, pow_controls);
+            }, pow_controls);*/
                 this.new_line();
-        this.key_triggered_button("SHOOT!", ["Enter"],
-                () => {this.shoot_arrow(this.bow.transform, this.pow_multiplier.toFixed(2)); this.arrow_shot.play(); this.burning.on = false; this.pulled = false; } , "#ff0000");
+        //this.key_triggered_button("SHOOT!", ["Enter"],
+        //        () => {this.shoot_arrow(this.bow.transform, this.pow_multiplier.toFixed(2)); this.arrow_shot.play(); this.burning.on = false; this.pulled = false; } , "#ff0000");
         this.key_triggered_button("BGM", ["m"], () => this.bgm.play());
-        this.key_triggered_button("SHOOT! FIRE! ARROW!", ["n"], () => {this.shoot_fire_arrow(this.bow.transform, this.pow_multiplier.toFixed(2)); this.fireworks.play(); this.burning.on = true; this.pulled = false;} , "#ff0000");
+        this.key_triggered_button("SHOOT! FIRE! ARROW!", ["Enter"], () => { this.powerAdj(); this.pulled = true;this.burning.on = true;this.charge.play();} , 
+        "#ff0000",() => {this.shoot_fire_arrow(this.bow.transform, this.pow_multiplier); this.fireworks.play(); this.burning.on = false; this.pulled = false;this.pow_multiplier=1;});
 
     }
 
