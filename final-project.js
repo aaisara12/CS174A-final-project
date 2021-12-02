@@ -27,11 +27,14 @@ class Base_Scene extends Scene {
         this.arrow_shot.src = 'assets/bow_shoot.mp3';
         this.hit = new Audio();
         this.hit.src = 'assets/hitmarker.mp3';
-        //this.hit.loop = false;
         this.victory = new Audio();
         this.victory.src = 'assets/victory!.mp3';
         this.fail = new Audio();
         this.fail.src = 'assets/fail.mp3';
+        this.fireworks = new Audio();
+        this.fireworks.src = 'assets/fireworks.mp3';
+        this.charge = new Audio();
+        this.charge.src = 'assets/charge.mp3';
 
         this.shapes = {
             'sky': new defs.Subdivision_Sphere(4),
@@ -155,6 +158,7 @@ class Base_Scene extends Scene {
 	    this.attached = 0; //initial camera value
         this.cam = "Yes"; //free cam or no 
         this.arrow_power=0;
+        this.pulled = false;
 
         // sky bool
         this.sky = true;
@@ -539,15 +543,15 @@ export class FinalProject extends Base_Scene {
         this.new_line();
         const pow_controls = this.control_panel.appendChild(document.createElement("span"));
             //speed_controls.style.margin = "30px";
-            this.key_triggered_button("POWER", ["p"], this.powerAdj, "#add8e6", undefined, undefined, pow_controls);
+            this.key_triggered_button("POWER", ["p"], () => {this.powerAdj(); this.charge.play(); this.pulled = true;}, "#add8e6", undefined, undefined, pow_controls);
             this.live_string(box => {
                 box.textContent = "Arrow Power: " + this.pow_multiplier.toFixed(2)
             }, pow_controls);
                 this.new_line();
         this.key_triggered_button("SHOOT!", ["Enter"],
-                () => {this.shoot_arrow(this.bow.transform, this.pow_multiplier.toFixed(2)); this.arrow_shot.play(); this.burning.on = false;} , "#ff0000");
+                () => {this.shoot_arrow(this.bow.transform, this.pow_multiplier.toFixed(2)); this.arrow_shot.play(); this.burning.on = false; this.pulled = false; } , "#ff0000");
         this.key_triggered_button("BGM", ["m"], () => this.bgm.play());
-        this.key_triggered_button("SHOOT! FIRE! ARROW!", ["n"], () => {this.shoot_fire_arrow(this.bow.transform, this.pow_multiplier.toFixed(2)); this.arrow_shot.play(); this.burning.on = true;} , "#ff0000");
+        this.key_triggered_button("SHOOT! FIRE! ARROW!", ["n"], () => {this.shoot_fire_arrow(this.bow.transform, this.pow_multiplier.toFixed(2)); this.fireworks.play(); this.burning.on = true; this.pulled = false;} , "#ff0000");
 
     }
 
@@ -615,7 +619,11 @@ export class FinalProject extends Base_Scene {
 
         if(this.bow == null)
             this.initializeArcher();
-
+        if(!this.pulled)
+            this.gameobjects[0].model = this.shapes.bow;
+        else
+            this.gameobjects[0].model = this.shapes.drawn_bow;
+            
         // sun
         let sun_transform = Mat4.identity();
         sun_transform = sun_transform.times(Mat4.rotation(this.sun_coef * t, 1, 0, 0))
@@ -660,11 +668,6 @@ export class FinalProject extends Base_Scene {
             }
         }
 
-        
-        
-        // move
-        let arrow_transform = Mat4.identity();
-        arrow_transform = arrow_transform.times(Mat4.translation(t, 0, -10));
       
         if(this.target_transform == null){
             this.target_transform = Mat4.identity();

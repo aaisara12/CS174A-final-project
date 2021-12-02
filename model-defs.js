@@ -124,7 +124,7 @@ const Drawn_Bow = model_defs.Drawn_Bow =
 
             //arrow 
             let arrow_transform = Mat4.identity();
-            arrow_transform = arrow_transform.times(Mat4.translation(-15, 0, 0));
+            //arrow_transform = arrow_transform.times(Mat4.translation(-15, 0, 0));
             Arrow.insert_transformed_copy_into(this, [], arrow_transform);
         }
     }
