@@ -1,3 +1,9 @@
+import {defs, tiny} from '../examples/common.js';
+
+const {
+    Vector, Vector3, vec, vec3, vec4, color, hex_color, Matrix, Mat4, Light, Shape, Material, Scene,
+} = tiny;
+
 const components = {};
 
 export {components};
@@ -136,5 +142,6 @@ const Projectile = components.Projectile =
         {
             this.curr_velocity[1] += this.gravity * deltaTime;
             this.gameObject.transform.translate(this.curr_velocity[0] * deltaTime, this.curr_velocity[1] * deltaTime, this.curr_velocity[2] * deltaTime, false);
+            this.gameObject.transform.setRight(this.curr_velocity.normalized());
         }
     }
