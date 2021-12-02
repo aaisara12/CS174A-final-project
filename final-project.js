@@ -711,41 +711,42 @@ export class FinalProject extends Base_Scene {
 
         //UI score
         //let score_transform = Mat4.identity().times(Mat4.translation(15,0,12)).times(Mat4.scale(3,3,3));
-        let score_transform2 = Mat4.inverse(program_state.camera_inverse).times(Mat4.translation(20,0,-30)).times(Mat4.rotation(t, 0, 1, 0)).times(Mat4.rotation(0.2*Math.PI, 0, 1, 0));
+        let score_transform = Mat4.inverse(program_state.camera_inverse).times(Mat4.translation(20,0,-30)).times(Mat4.rotation(t, 0, 1, 0)).times(Mat4.rotation(0.2*Math.PI, 0, 1, 0));
         switch (this.score) {
           case 1:
-            this.shapes.cube.draw(context, program_state, score_transform2, this.materials.score1);
+            this.shapes.cube.draw(context, program_state, score_transform, this.materials.score1);
             break;
           case 2:
-            this.shapes.cube.draw(context, program_state, score_transform2, this.materials.score2);
+            this.shapes.cube.draw(context, program_state, score_transform, this.materials.score2);
             break;
           case 3:
-          this.shapes.cube.draw(context, program_state, score_transform2, this.materials.score3);
+          this.shapes.cube.draw(context, program_state, score_transform, this.materials.score3);
             break;
           case 4:
-          this.shapes.cube.draw(context, program_state, score_transform2, this.materials.score4);
+          this.shapes.cube.draw(context, program_state, score_transform, this.materials.score4);
             break;
           case 5:
-          this.shapes.cube.draw(context, program_state, score_transform2, this.materials.score5);
+          this.shapes.cube.draw(context, program_state, score_transform, this.materials.score5);
             break;
           case 6:
-          this.shapes.cube.draw(context, program_state, score_transform2, this.materials.score6);
+          this.shapes.cube.draw(context, program_state, score_transform, this.materials.score6);
             break;
           case 7:
-          this.shapes.cube.draw(context, program_state, score_transform2, this.materials.score7);
+          this.shapes.cube.draw(context, program_state, score_transform, this.materials.score7);
             break;
           case 8:
-          this.shapes.cube.draw(context, program_state, score_transform2, this.materials.score8);
+          this.shapes.cube.draw(context, program_state, score_transform, this.materials.score8);
             break;
           case 9:
-          this.shapes.cube.draw(context, program_state, score_transform2, this.materials.score9);
+          this.shapes.cube.draw(context, program_state, score_transform, this.materials.score9);
             break;
           case 10:
-          this.shapes.cube.draw(context, program_state, score_transform2, this.materials.score10);
+          this.shapes.cube.draw(context, program_state, score_transform, this.materials.score10);
             break;
           default:
-            this.shapes.cube.draw(context, program_state, score_transform2, this.materials.score0);
+            this.shapes.cube.draw(context, program_state, score_transform, this.materials.score0);
         }
+        let score_transform2 = Mat4.inverse(program_state.camera_inverse).times(Mat4.translation(20,0,-30)).times(Mat4.rotation(t, 0, 1, 0)).times(Mat4.rotation(0.2*Math.PI, 0, 1, 0));
         this.shapes.axis.draw(context, program_state, score_transform2, this.white);
         // Update each GameObject in the scene then draw it
         for(let i = 0; i < this.gameobjects.length; i++)
