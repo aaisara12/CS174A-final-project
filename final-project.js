@@ -420,7 +420,7 @@ export class FinalProject extends Base_Scene {
 
     shoot_arrow(shoot_direction_transform, power)
     {
-        let arrow = this.spawn_gameObject(this.shapes.arrow, shoot_direction_transform.model_transform, [new components.Projectile(power)], this.materials.arrow);
+        let arrow = this.spawn_gameObject(this.shapes.arrow, shoot_direction_transform.model_transform, [new components.Projectile(power, vec3(0, 0, 0))], this.materials.arrow);
     }
 
     powerAdj() {

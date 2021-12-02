@@ -125,12 +125,12 @@ const GravityTest2 = components.GravityTest2 =
 
 const Projectile = components.Projectile =
     class Projectile extends Component{
-        constructor(power)
+        constructor(power, windForce)
         {
             super();
             this.gravity = -50;
             this.power = power;
-            this.windForce = vec3(0, 0, 0);
+            this.windForce = windForce;
         }
 
         start()
