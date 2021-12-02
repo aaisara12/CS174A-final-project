@@ -420,7 +420,7 @@ export class FinalProject extends Base_Scene {
 
     shoot_arrow(shoot_direction_transform, power)
     {
-        let arrow = this.spawn_gameObject(this.shapes.arrow, shoot_direction_transform.model_transform, [new components.GravityTest2()], this.materials.arrow);
+        let arrow = this.spawn_gameObject(this.shapes.arrow, shoot_direction_transform.model_transform, [new components.Projectile(power)], this.materials.arrow);
     }
 
     powerAdj() {
@@ -505,7 +505,7 @@ export class FinalProject extends Base_Scene {
             }, pow_controls);
                 this.new_line();
         this.key_triggered_button("SHOOT!", ["Enter"],
-                () => this.shoot_arrow(this.bow.transform, 0.5)
+                () => this.shoot_arrow(this.bow.transform, 100)
                     
                 , "#ff0000");
     }

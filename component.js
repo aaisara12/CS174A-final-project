@@ -10,6 +10,11 @@ class Component
         this.gameObject = gameObject;
     }
 
+    start()
+    {
+        // This should be overridden with custom logic
+    }
+
     update(time, deltaTime)
     {
         // This should be overridden with custom logic
@@ -102,5 +107,27 @@ const GravityTest2 = components.GravityTest2 =
                 var POWER = .6;
                 this.gameObject.transform.translate(POWER, -this.gameObject.dy , .1);
             }
+        }
+    }
+
+const Projectile = components.Projectile =
+    class Projectile extends Component{
+        constructor(power)
+        {
+            super();
+            this.gravity = -9.8;
+            this.power = power;
+        }
+
+        start()
+        {
+            // Initialize physics values based on start direction and magnitude
+            this.curr_velocity = this.gameObject.transform.right().times(this.power);
+        }
+
+        update(time, deltaTime)
+        {
+            this.curr_velocity[1] += this.gravity * deltaTime;
+            this.gameObject.transform.translate(this.curr_velocity[0] * deltaTime, this.curr_velocity[1] * deltaTime, this.curr_velocity[2] * deltaTime, false);
         }
     }

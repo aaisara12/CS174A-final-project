@@ -15,11 +15,18 @@ class GameObject
         this.components = components;
         this.material = material;
         
+        // Physics vars
         this.dy = 0;
         
         for(let i = 0; i < components.length; i++)
         {
             this.components[i].initialize(this);
+        }
+        
+        // Wait for all components to be initialized first before calling start method
+        for(let i = 0; i < components.length; i++)
+        {
+            this.components[i].start();
         }
         
     }
@@ -67,7 +74,7 @@ class Transform
     translate(dx, dy, dz, isLocalSpace = true)
     {
         let local_translation = (isLocalSpace)? vec4(dx, dy, dz, 0) : Mat4.inverse(this.local_transform).times(vec4(dx, dy, dz, 0));
-        
+
         this.transformLocal((Mat4.translation(local_translation[0], local_translation[1], local_translation[2])));
         
     }
@@ -84,6 +91,16 @@ class Transform
     position()
     {
         return vec3(this.model_transform[0][3], this.model_transform[1][3], this.model_transform[2][3]);
+    }
+
+    forward()
+    {
+        return vec3(this.model_transform[0][2], this.model_transform[1][2], this.model_transform[2][2]);
+    }
+
+    right()
+    {
+        return vec3(this.model_transform[0][0], this.model_transform[1][0], this.model_transform[2][0]);
     }
 
 
