@@ -136,7 +136,7 @@ const Projectile = components.Projectile =
         start()
         {
             // Initialize physics values based on start direction and magnitude
-            this.curr_velocity = this.gameObject.transform.right().times(this.power);
+            this.curr_velocity = this.gameObject.transform.right().times(this.power*2);
         }
 
         update(time, deltaTime)

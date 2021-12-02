@@ -537,9 +537,7 @@ export class FinalProject extends Base_Scene {
     updateGameObject(a, targ, t, dt, recent){
         let radius = 20;
         let distCheck = this.calcDist(a.transform.model_transform, targ) < radius;
-        let modelCheck = a.transform.model_transform[0][3] > targ[0][3];
-        // console.log(a.Transform);
-        // console.log(a.transform.local_transform);
+        let modelCheck = a.transform.model_transform[0][3] > targ[0][3] && a.transform.model_transform[0][3] < targ[0][3]+5;
         if(modelCheck&&distCheck){
             a.update(0,0);
             if(recent){
@@ -718,7 +716,8 @@ export class FinalProject extends Base_Scene {
             else
                 this.updateGameObject(this.gameobjects[i], this.target_transform, t, dt, false);
             
-            this.gameobjects[i].draw(context, program_state);
+            if (i == this.gameobjects.length-1 || i == 0)
+                this.gameobjects[i].draw(context, program_state);
 
         }
 
