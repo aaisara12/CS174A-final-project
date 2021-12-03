@@ -544,10 +544,10 @@ export class FinalProject extends Base_Scene {
         this.key_triggered_button("Move Target Left", ["5"], () => this.move_target_left());
         this.key_triggered_button("Move Target Right", ["6"], () => this.move_target_right());
 
-        this.key_triggered_button("Aim Left", ["j"], () => this.yaw_joint.rotate(0, Math.PI/30, 0));
-        this.key_triggered_button("Aim Up", ["i"], () => this.pitch_joint.rotate(0, 0, Math.PI/30));
-        this.key_triggered_button("Aim Down", ["k"], () => this.pitch_joint.rotate(0, 0, -Math.PI/30));
-        this.key_triggered_button("Aim Right", ["l"], () => this.yaw_joint.rotate(0, -Math.PI/30, 0));
+        this.key_triggered_button("Aim Left", ["j"], () => this.yaw_joint.rotate(0, Math.PI/200, 0));
+        this.key_triggered_button("Aim Up", ["i"], () => this.pitch_joint.rotate(0, 0, Math.PI/200));
+        this.key_triggered_button("Aim Down", ["k"], () => this.pitch_joint.rotate(0, 0, -Math.PI/200));
+        this.key_triggered_button("Aim Right", ["l"], () => this.yaw_joint.rotate(0, -Math.PI/200, 0));
 
         this.new_line();
         this.new_line();
