@@ -647,7 +647,7 @@ export class FinalProject extends Base_Scene {
         // sun
         let sun_transform = Mat4.identity();
         sun_transform = sun_transform.times(Mat4.rotation(this.sun_coef * t, 1, 0, 0))
-               .times(Mat4.translation(0, 0, -250));
+               .times(Mat4.translation(0, 0, -75));
         
         let sun_color = vec4(1, 1, 1, 1);
         let sun_material = this.materials.sun;
@@ -660,7 +660,7 @@ export class FinalProject extends Base_Scene {
         // moon
         let moon_transform = Mat4.identity();
         moon_transform = moon_transform.times(Mat4.rotation(this.sun_coef * t, 1, 0, 0))
-               .times(Mat4.translation(0, 0, 250));
+               .times(Mat4.translation(0, 0, 75));
         let moon_color = vec4(1, 1, 1, 1);
         let moon_material = this.materials.sun;
         moon_material = moon_material.override({color:moon_color});
