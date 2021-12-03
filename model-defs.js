@@ -413,3 +413,27 @@ const Target_Shader = model_defs.Target_Shader =
             this.send_gpu_state(context, gpu_addresses, gpu_state, model_transform);
         }
     }
+
+
+
+const Warrow = model_defs.Warrow =
+    class Warrow extends Shape {
+        // An axis set with arrows, made out of a lot of various primitives.
+        constructor() {
+            super("position", "normal", "texture_coord");
+            let stack = [];
+            //defs.Subdivision_Sphere.insert_transformed_copy_into(this, [3], Mat4.rotation(Math.PI / 2, 0, 1, 0).times(Mat4.scale(.25, .25, .25)));
+            //this.drawOneAxis(Mat4.rotation(-Math.PI / 2, 1, 0, 0).times(Mat4.scale(1, -1, 1)), [[0, 1], [0, 1]]);
+            //this.drawOneAxis(Mat4.rotation(-Math.PI / 2, 1, 0, 0).times(Mat4.scale(1, -1, 1)), [[.34, .66], [0, 1]]);
+            this.drawOneAxis(Mat4.rotation(Math.PI / 2, 0, 1, 0).times(Mat4.scale(-1, 1, 1)), [[0, .33], [0, 1]]);
+        }
+
+        drawOneAxis(transform, tex) {
+            // Use a different texture coordinate range for each of the three axes, so they show up differently.
+            defs.Closed_Cone.insert_transformed_copy_into(this, [4, 10, tex], transform.times(Mat4.translation(0, 0, 2)).times(Mat4.scale(.25, .25, .25)));
+            //Cube.insert_transformed_copy_into(this, [], transform.times(Mat4.translation(.95, .95, .45)).times(Mat4.scale(.05, .05, .45)));
+            //Cube.insert_transformed_copy_into(this, [], transform.times(Mat4.translation(.95, 0, .5)).times(Mat4.scale(.05, .05, .4)));
+            //Cube.insert_transformed_copy_into(this, [], transform.times(Mat4.translation(0, .95, .5)).times(Mat4.scale(.05, .05, .4)));
+            defs.Cylindrical_Tube.insert_transformed_copy_into(this, [7, 7, tex], transform.times(Mat4.translation(0, 0, 1)).times(Mat4.scale(.1, .1, 2)));
+        }
+    }

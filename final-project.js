@@ -52,6 +52,7 @@ class Base_Scene extends Scene {
             'fire': new model_defs.Emitter(),
             'fire_particle': new model_defs.Particle(),
             'axis': new defs.Axis_Arrows(),
+            'warrow': new model_defs.Warrow(),
         };
 
         // *** Materials
@@ -422,7 +423,9 @@ export class FinalProject extends Base_Scene {
         this.archer_fps_cam;
         this.target_transform;
         this.target_moved = false;
-        this.windForce = vec3(1, -2, 3);
+        this.windForce = vec3(Math.random()*100-50, Math.random()*100-50, 0);
+        this.show_wind = 0;
+        this.toggle_wind = 1;
     }
 
     // Make a special function that spawns in a GameObject into the scene (instantiates a GameObject using a "prefab")
@@ -435,13 +438,13 @@ export class FinalProject extends Base_Scene {
 
     shoot_arrow(shoot_direction_transform, power)
     {
-        let arrow = this.spawn_gameObject(this.shapes.arrow, shoot_direction_transform.model_transform, [new components.Projectile(power, vec3(0, 0, 0))], this.materials.arrow);
+        let arrow = this.spawn_gameObject(this.shapes.arrow, shoot_direction_transform.model_transform, [new components.Projectile(power, this.windForce)], this.materials.arrow);
         this.target_moved = false;
     }
 
     shoot_fire_arrow(shoot_direction_transform, power)
     {
-        let arrow = this.spawn_gameObject(this.shapes.arrow, shoot_direction_transform.model_transform, [new components.Projectile(power, vec3(0, 0, 0))], this.materials.arrow);
+        let arrow = this.spawn_gameObject(this.shapes.arrow, shoot_direction_transform.model_transform, [new components.Projectile(power, this.windForce)], this.materials.arrow);
         this.target_moved = false;
     }
     
@@ -520,18 +523,18 @@ export class FinalProject extends Base_Scene {
             });
         this.new_line();
         let x_dir = "Right: ";
-        if(this.windForce[1]<0)
+        if(this.windForce[0]<0)
             x_dir = "Left: ";
         this.live_string(box => {
                 box.textContent = x_dir + Math.abs(this.windForce[0])
             });
         this.new_line();
-        let z_dir = "Backwards: ";
+        /*let z_dir = "Backwards: ";
         if(this.windForce[1]<0)
             z_dir = "Forwards: ";
         this.live_string(box => {
                 box.textContent = z_dir + Math.abs(this.windForce[2])
-            });
+            });*/
         this.new_line();
         this.new_line();
         this.key_triggered_button("Move Target Back", ["1"], () => this.move_target_back());
@@ -566,7 +569,8 @@ export class FinalProject extends Base_Scene {
         this.key_triggered_button("BGM", ["m"], () => this.bgm.play());
         this.key_triggered_button("SHOOT! FIRE! ARROW!", ["Enter"], () => { this.powerAdj(); this.pulled = true;this.burning.on = true;this.charge.play();} , 
         "#ff0000",() => {this.shoot_fire_arrow(this.bow.transform, this.pow_multiplier); this.fireworks.play(); this.burning.on = true; this.pulled = false;this.pow_multiplier=1;});
-
+        this.key_triggered_button("Change Wind", ["n"], () => this.windForce = vec3(Math.random()*100-50, Math.random()*100-50, 0));
+        this.key_triggered_button("Toggle Wind", ["b"], () => {this.toggle_wind^=1; if(!this.toggle_wind){this.windForce = vec3(0, 0, 0);}else{this.windForce = vec3(Math.random()*100-50, Math.random()*100-50, 0);}});
     }
 
     calcDist(a, b){
@@ -594,7 +598,7 @@ export class FinalProject extends Base_Scene {
         else{
             a.update(t, dt);
         }
-        if(!distCheck&&modelCheck&&recent){ //doesn't hit target, has passed it
+        if(!distCheck&&modelCheck&&recent&& this.target_moved == false){ //doesn't hit target, has passed it
             this.score=0;
             this.fail.play();
         }
@@ -771,18 +775,31 @@ export class FinalProject extends Base_Scene {
 
         }
 
+        //UI wind
+        let ui_w = Mat4.inverse(program_state.camera_inverse).times(Mat4.translation(17,7,-30));
+        //let ui_w = Mat4.identity().times(Mat4.translation(20,2,-30));
+        let mag = Math.sqrt(Math.pow(this.windForce[0], 2) + Math.pow(this.windForce[1], 2))
+        if(this.windForce[0]<0){
+            mag = -mag    
+        }
+        let wind_point = Mat4.identity().times(Mat4.rotation(Math.atan(this.windForce[1]/this.windForce[0]),0,0,1)).times(Mat4.scale(mag/70*1.5,1,1));
+        let w_t = Mat4.identity().times(ui_w).times(wind_point);
+        if(this.show_wind)
+            this.shapes.warrow.draw(context, program_state, w_t, this.materials.plastic.override({color: hex_color("#ffff00")}));
         
-//1st/3rd person camera movement
+        //1st/3rd person camera movement
         if(typeof this.attached === "function"){
             let desired=Mat4.identity();
-            if(this.attached()==3) //third person
-                desired=Mat4.translation(10, 0, -80).times(Mat4.rotation(Math.PI,0,1,0)); 
+            if(this.attached()==3){ //third person
+                desired=Mat4.translation(10, 0, -80).times(Mat4.rotation(Math.PI,0,1,0));
+                this.show_wind =0; }
             else if (this.attached()==1){ //first person
                 desired = Mat4.inverse(this.archer_fps_cam.model_transform); 
-
+                this.show_wind = 1;
             }
             else{//free camera
                 this.cam = "Yes";
+                this.show_wind =0;
             }   
             if(this.attached()!="f"){
                 program_state.set_camera(desired.map((x,i) => Vector.from(program_state.camera_inverse[i]).mix(x, 0.1)));     
