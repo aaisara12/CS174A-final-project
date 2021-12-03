@@ -27,6 +27,8 @@ class Base_Scene extends Scene {
         this.arrow_shot.src = 'assets/bow_shoot.mp3';
         this.hit = new Audio();
         this.hit.src = 'assets/hitmarker.mp3';
+        this.badhit = new Audio();
+        this.badhit.src = 'assets/oof.mp3';
         this.victory = new Audio();
         this.victory.src = 'assets/victory!.mp3';
         this.fail = new Audio();
@@ -582,6 +584,8 @@ export class FinalProject extends Base_Scene {
                 let newscore = this.scoreFinder(a,targ,radius);
                 if(newscore != this.score && newscore >= 9)
                     this.victory.play();
+                else if (newscore != this.score && newscore <= 4)
+                    this.badhit.play();
                 else if (newscore != this.score && newscore < 9)
                     this.hit.play();
                 this.score=this.scoreFinder(a,targ,radius);
