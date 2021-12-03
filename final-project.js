@@ -158,7 +158,7 @@ class Base_Scene extends Scene {
         
         // The white material and basic shader are used for drawing the outline.
         this.white = new Material(new defs.Basic_Shader());
-	    this.attached = 0; //initial camera value
+	    this.attached = () => 1; //initial camera value
         this.cam = "Yes"; //free cam or no 
         this.arrow_power=0;
         this.pulled = false;
