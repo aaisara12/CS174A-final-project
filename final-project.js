@@ -581,7 +581,7 @@ export class FinalProject extends Base_Scene {
         let radius = 20;
         let distCheck = this.calcDist(a.transform.model_transform, targ) < radius;
         let modelCheck = a.transform.model_transform[0][3] > targ[0][3] && a.transform.model_transform[0][3] < targ[0][3]+5;
-
+        let fell = a.transform.model_transform[0][2] < (targ[0][2] - 20)
         if(modelCheck&&distCheck){
             a.update(0,0);
             if(recent && this.target_moved == false){
@@ -598,7 +598,7 @@ export class FinalProject extends Base_Scene {
         else{
             a.update(t, dt);
         }
-        if(!distCheck&&modelCheck&&recent&& this.target_moved == false){ //doesn't hit target, has passed it
+        if(!distCheck&&(modelCheck||fell)&&recent&&this.target_moved == false){ //doesn't hit target, has passed it
             this.score=0;
             this.fail.play();
         }
