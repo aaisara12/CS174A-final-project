@@ -23,18 +23,33 @@ class Base_Scene extends Scene {
         this.bgm = new Audio();
         this.bgm.src = 'assets/battle.mp3';
         this.bgm.volume = 0.2;
+
         this.arrow_shot = new Audio();
         this.arrow_shot.src = 'assets/bow_shoot.mp3';
+        this.fireworks = new Audio();
+        this.fireworks.src = 'assets/fireworks.mp3';
+
         this.hit = new Audio();
         this.hit.src = 'assets/hitmarker.mp3';
         this.badhit = new Audio();
         this.badhit.src = 'assets/oof.mp3';
+        this.superhit = new Audio();
+        this.superhit.src = 'assets/super_effective.mp3'
+
         this.victory = new Audio();
         this.victory.src = 'assets/victory!.mp3';
+        this.victory2 = new Audio();
+        this.victory2.src = 'assets/victory2.mp3'
+        this.victory3 = new Audio();
+        this.victory3.src = 'assets/victory3.mp3';
+
         this.fail = new Audio();
         this.fail.src = 'assets/fail.mp3';
-        this.fireworks = new Audio();
-        this.fireworks.src = 'assets/fireworks.mp3';
+        this.fail2 = new Audio();
+        this.fail2.src = 'assets/YOUFAILED.mp3';
+        this.fail3 = new Audio();
+        this.fail3.src= 'assets/fail3.mp3';
+
         this.charge = new Audio();
         this.charge.src = 'assets/charge.mp3';
         this.shapes = {
@@ -509,6 +524,72 @@ export class FinalProject extends Base_Scene {
         this.target_moved = true;
     }
 
+    // play random shoot sound
+    play_shoot() {
+        let random = Math.floor(Math.random() * 3);
+        switch(random) {
+            case 1:
+                this.arrow_shot.play();
+                break;
+            case 2:
+                this.fireworks.play();
+                break;
+            default:
+                this.arrow_shot.play();
+                break;
+        }
+
+    }
+    // play random hit sound
+    play_hit() {
+        let random = Math.floor(Math.random() * 3);
+        switch(random) {
+            case 1:
+                this.hit.play();
+                break;
+            case 2:
+                this.badhit.play();
+                break;
+            default:
+                this.superhit.play();
+                break;
+        }
+
+    }
+
+    // play random victory sound
+    play_victory() {
+        let random = Math.floor(Math.random() * 3);
+        switch(random) {
+            case 1:
+                this.victory.play();
+                break;
+            case 2:
+                this.victory2.play();
+                break;
+            default:
+                this.victory3.play();
+                break;
+        }
+    }
+
+    // play random fail sound
+    play_fail() {
+        let random = Math.floor(Math.random() * 3);
+        console.log(random);
+        switch(random) {
+            case 1:
+                this.fail.play();
+                break;
+            case 2:
+                this.fail2.play();
+                break;
+            default:
+                this.fail3.play();
+                break;
+        }
+    }
+
     make_control_panel() {
         // Draw the scene's buttons, setup their actions and keyboard shortcuts, and monitor live measurements.
         this.live_string(box => {
@@ -543,7 +624,7 @@ export class FinalProject extends Base_Scene {
         const dir2 = this.control_panel.appendChild(document.createElement("span"));
         dir2.style.margin = "25px";
         this.key_triggered_button("SHOOT! FIRE! ARROW!", ["Enter"], () => { this.powerAdj(); this.pulled = true;this.burning.on = true;this.charge.play();} , 
-        "#ff0000",() => {this.shoot_fire_arrow(this.bow.transform, this.pow_multiplier); this.fireworks.play(); this.burning.on = true; this.pulled = false;this.pow_multiplier=1;});
+        "#ff0000",() => {this.shoot_fire_arrow(this.bow.transform, this.pow_multiplier); this.play_shoot(); this.burning.on = true; this.pulled = false;this.pow_multiplier=1;});
         this.new_line();
         this.new_line();
         
@@ -583,11 +664,9 @@ export class FinalProject extends Base_Scene {
             if(recent && this.target_moved == false){
                 let newscore = this.scoreFinder(a,targ,radius);
                 if(newscore != this.score && newscore >= 9)
-                    this.victory.play();
-                else if (newscore != this.score && newscore <= 4)
-                    this.badhit.play();
+                    this.play_victory();
                 else if (newscore != this.score && newscore < 9)
-                    this.hit.play();
+                    this.play_hit();
                 this.score=this.scoreFinder(a,targ,radius);
             }
         }
@@ -596,7 +675,7 @@ export class FinalProject extends Base_Scene {
         }
         if(!distCheck&&(modelCheck||fell)&&recent&&this.target_moved == false){ //doesn't hit target, has passed it
             this.score=0;
-            this.fail.play();
+            this.play_fail();
         }
     }
 
