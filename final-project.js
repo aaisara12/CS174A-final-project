@@ -514,41 +514,45 @@ export class FinalProject extends Base_Scene {
         this.live_string(box => {
                 box.textContent = "Wind: "
             });
-        this.new_line();
+                    this.new_line();
         let y_dir = "Up: ";
         if(this.windForce[1]<0)
             y_dir = "Down: ";
         this.live_string(box => {
                 box.textContent = y_dir +Math.abs(this.windForce[1])
             });
-        this.new_line();
-        let x_dir = "Right: ";
+            this.new_line();
+        let x_dir = " Right: ";
         if(this.windForce[0]<0)
-            x_dir = "Left: ";
+            x_dir = " Left: ";
         this.live_string(box => {
                 box.textContent = x_dir + Math.abs(this.windForce[0])
             });
         this.new_line();
-        /*let z_dir = "Backwards: ";
-        if(this.windForce[1]<0)
-            z_dir = "Forwards: ";
-        this.live_string(box => {
-                box.textContent = z_dir + Math.abs(this.windForce[2])
-            });*/
+        const dir = this.control_panel.appendChild(document.createElement("span"));
+        dir.style.margin = "52px";
+        this.key_triggered_button("Aim Up", ["i"], () => this.pitch_joint.rotate(0, 0, Math.PI/200),"#87ceeb");
+        this.new_line();
+        //this.key_triggered_button("Left", ["a"], () => this.thrust[0] = 1,  "#77d777", () => this.thrust[0] = 0);
+        this.key_triggered_button("Aim Left", ["j"], () => this.yaw_joint.rotate(0, Math.PI/200, 0),"#87ceeb");
+        //this.key_triggered_button("Down", ["s"], () => this.thrust[1] = 1,  "#77d777", () => this.thrust[1] = 0);
+        this.key_triggered_button("Aim Down", ["k"], () => this.pitch_joint.rotate(0, 0, -Math.PI/200),"#87ceeb");
+        //this.key_triggered_button("Right", ["d"], () => this.thrust[0] = -1,  "#77d777", () => this.thrust[0] = 0);
+        this.key_triggered_button("Aim Right", ["l"], () => this.yaw_joint.rotate(0, -Math.PI/200, 0),"#87ceeb");
+        this.new_line();
+        const dir2 = this.control_panel.appendChild(document.createElement("span"));
+        dir2.style.margin = "25px";
+        this.key_triggered_button("SHOOT! FIRE! ARROW!", ["Enter"], () => { this.powerAdj(); this.pulled = true;this.burning.on = true;this.charge.play();} , 
+        "#ff0000",() => {this.shoot_fire_arrow(this.bow.transform, this.pow_multiplier); this.fireworks.play(); this.burning.on = true; this.pulled = false;this.pow_multiplier=1;});
         this.new_line();
         this.new_line();
+        
         this.key_triggered_button("Move Target Back", ["1"], () => this.move_target_back());
         this.key_triggered_button("Move Target Closer", ["2"], () => this.move_target_closer());
         this.key_triggered_button("Move Target Up", ["3"], () => this.move_target_up());
         this.key_triggered_button("Move Target Down", ["4"], () => this.move_target_down());
         this.key_triggered_button("Move Target Left", ["5"], () => this.move_target_left());
         this.key_triggered_button("Move Target Right", ["6"], () => this.move_target_right());
-
-        this.key_triggered_button("Aim Left", ["j"], () => this.yaw_joint.rotate(0, Math.PI/200, 0));
-        this.key_triggered_button("Aim Up", ["i"], () => this.pitch_joint.rotate(0, 0, Math.PI/200));
-        this.key_triggered_button("Aim Down", ["k"], () => this.pitch_joint.rotate(0, 0, -Math.PI/200));
-        this.key_triggered_button("Aim Right", ["l"], () => this.yaw_joint.rotate(0, -Math.PI/200, 0));
-
         this.new_line();
         this.new_line();
     	this.key_triggered_button("Lock First Person", ["t"], () => this.attached = () => 1);
@@ -556,21 +560,13 @@ export class FinalProject extends Base_Scene {
         this.new_line();
         this.key_triggered_button("Free Cam", ["h"], () => this.attached = () => "f");
         this.live_string(box => box.textContent = "Free Camera View?: " + this.cam);
+        
         this.new_line();
-        /*const pow_controls = this.control_panel.appendChild(document.createElement("span"));
-            //speed_controls.style.margin = "30px";
-            this.key_triggered_button("POWER", ["p"], () => {this.powerAdj(); this.charge.play(); this.pulled = true;}, "#add8e6", undefined, undefined, pow_controls);
-            this.live_string(box => {
-                box.textContent = "Arrow Power: " + this.pow_multiplier.toFixed(2)
-            }, pow_controls);*/
-                this.new_line();
-        //this.key_triggered_button("SHOOT!", ["Enter"],
-        //        () => {this.shoot_arrow(this.bow.transform, this.pow_multiplier.toFixed(2)); this.arrow_shot.play(); this.burning.on = false; this.pulled = false; } , "#ff0000");
-        this.key_triggered_button("BGM", ["m"], () => this.bgm.play());
-        this.key_triggered_button("SHOOT! FIRE! ARROW!", ["Enter"], () => { this.powerAdj(); this.pulled = true;this.burning.on = true;this.charge.play();} , 
-        "#ff0000",() => {this.shoot_fire_arrow(this.bow.transform, this.pow_multiplier); this.fireworks.play(); this.burning.on = true; this.pulled = false;this.pow_multiplier=1;});
+        this.new_line();
         this.key_triggered_button("Change Wind", ["n"], () => this.windForce = vec3(Math.random()*100-50, Math.random()*100-50, 0));
         this.key_triggered_button("Toggle Wind", ["b"], () => {this.toggle_wind^=1; if(!this.toggle_wind){this.windForce = vec3(0, 0, 0);}else{this.windForce = vec3(Math.random()*100-50, Math.random()*100-50, 0);}});
+        this.new_line();
+        this.key_triggered_button("BGM", ["m"], () => this.bgm.play());
     }
 
     calcDist(a, b){
