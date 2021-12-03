@@ -423,7 +423,7 @@ export class FinalProject extends Base_Scene {
         this.target_moved = false;
         this.windForce = vec3(Math.random()*100-50, Math.random()*100-50, 0);
         this.show_wind = 0;
-        this.toggle_wind = 0;
+        this.toggle_wind = 1;
     }
 
     // Make a special function that spawns in a GameObject into the scene (instantiates a GameObject using a "prefab")
@@ -568,6 +568,7 @@ export class FinalProject extends Base_Scene {
         this.key_triggered_button("SHOOT! FIRE! ARROW!", ["Enter"], () => { this.powerAdj(); this.pulled = true;this.burning.on = true;this.charge.play();} , 
         "#ff0000",() => {this.shoot_fire_arrow(this.bow.transform, this.pow_multiplier); this.fireworks.play(); this.burning.on = true; this.pulled = false;this.pow_multiplier=1;});
         this.key_triggered_button("Change Wind", ["n"], () => this.windForce = vec3(Math.random()*100-50, Math.random()*100-50, 0));
+        this.key_triggered_button("Toggle Wind", ["b"], () => {this.toggle_wind^=1; if(!this.toggle_wind){this.windForce = vec3(0, 0, 0);}else{this.windForce = vec3(Math.random()*100-50, Math.random()*100-50, 0);}});
     }
 
     calcDist(a, b){
